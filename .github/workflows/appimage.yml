@@ -10,6 +10,7 @@ on:
 env:
   VERSION: 0.0.25b-alpha
   NAME: 0ad
+  SHELL: /bin/bash
 
 jobs:
   build:
@@ -31,8 +32,9 @@ jobs:
             libopenal-dev libpng-dev libsdl2-dev libsodium-dev libvorbis-dev   \
             libxml2-dev python rustc subversion zlib1g-dev libwxgtk3.0-gtk3-dev wx-common
         wget -c https://releases.wildfiregames.com/${NAME}-${VERSION}-unix-build.tar.xz
-        wget --quiet -c https://releases.wildfiregames.com/${NAME}-${VERSION}-unix-data.tar.xz
         tar xJf ${NAME}-${VERSION}-unix-build.tar.xz
+        echo "Getting data and extracting archive..."
+        wget --quiet -c https://releases.wildfiregames.com/${NAME}-${VERSION}-unix-data.tar.xz
         tar xJf ${NAME}-${VERSION}-unix-data.tar.xz
 
     - name: build
