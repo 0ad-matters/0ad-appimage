@@ -32,61 +32,61 @@ jobs:
         tar xJf ${NAME}-${VERSION}-unix-build.tar.xz
         tar xJf ${NAME}-${VERSION}-unix-data.tar.xz
 
-      - name: build
-        run: |
-          cd ${VERSION}/build/workspaces
-          ./update-workspaces -j$(nproc) --without-pch
-          make -C gcc -j$(nproc)
+    - name: build
+      run: |
+        cd ${VERSION}/build/workspaces
+        ./update-workspaces -j$(nproc) --without-pch
+        make -C gcc -j$(nproc)
 
-      - name:prepare AppDir
-        run:  |
-          ABS_PATH_WORK_DIR=${PWD}
-          ABS_PATH_SRC_ROOT=${PWD}/${NAME}-${VERSION}
-          if [ ! -d "${ABS_PATH_WORK_DIR}" ]; then
-            echo "The work dir must be an absolute path to an existing directory."
-            exit 1
-          fi
-          if [ ! -r "${ABS_PATH_SRC_ROOT}/source/main.cpp" ]; then
-            echo "set the source root!"
-            exit 1
-          fi
-          APPDIR=${ABS_PATH_WORK_DIR}/AppDir
-          cd ${ABS_PATH_SRC_ROOT}
-          install -s binaries/system/pyrogenesis -Dt ${APPDIR}/usr/bin
-          install -s binaries/system/ActorEditor -Dt ${APPDIR}/usr/bin
-          cd ${APPDIR}/usr/bin
-          ln -s pyrogenesis 0ad
-          for lib in libmozjs78-ps-release.so \
-                  libnvcore.so    \
-                  libnvimage.so   \
-                  libnvmath.so    \
-                  libnvtt.so
-          do
-            patchelf --set-rpath $lib:${ABS_PATH_SRC_ROOT}/binaries/system pyrogenesis
-          done
-          patchelf --set-rpath libAtlasUI.so:${ABS_PATH_SRC_ROOT}/binaries/system ActorEditor
-          # Note that binaries/system{libmoz*.so, libnv*.so, libAtlasUI.so} will be copied into
-          # the ${APPDIR} folder automatically when linuxdeploy is run below.
-          cd ${ABS_PATH_SRC_ROOT}
-          install binaries/system/libCollada.so -Dt ${APPDIR}/usr/lib
-          install build/resources/0ad.appdata.xml -Dt ${APPDIR}/usr/share/appdata
-          install build/resources/0ad.desktop -Dt ${APPDIR}/usr/share/applications
-          install build/resources/0ad.png -Dt ${APPDIR}/usr/share/pixmaps
-          mkdir -p ${APPDIR}/usr/data/config
-          cp -a binaries/data/config/default.cfg ${APPDIR}/usr/data/config
-          cp -a binaries/data/l10n ${APPDIR}/usr/data
-          cp -a binaries/data/tools ${APPDIR}/usr/data # for Atlas
-          cp -a binaries/data/mods ${APPDIR}/usr/data
-          # Create the image
-          cd ${ABS_PATH_WORK_DIR}
-          DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
-          linuxdeploy -d ${APPDIR}/usr/share/applications/0ad.desktop \
-            --icon-file=${APPDIR}/usr/share/pixmaps/0ad.png \
-            --icon-filename=0ad \
-            --executable ${APPDIR}/usr/bin/pyrogenesis \
-            --appdir ${APPDIR} \
-            --output appimage \
-            --plugin gtk
+    - name:prepare AppDir
+      run:  |
+        ABS_PATH_WORK_DIR=${PWD}
+        ABS_PATH_SRC_ROOT=${PWD}/${NAME}-${VERSION}
+        if [ ! -d "${ABS_PATH_WORK_DIR}" ]; then
+          echo "The work dir must be an absolute path to an existing directory."
+          exit 1
+        fi
+        if [ ! -r "${ABS_PATH_SRC_ROOT}/source/main.cpp" ]; then
+          echo "set the source root!"
+          exit 1
+        fi
+        APPDIR=${ABS_PATH_WORK_DIR}/AppDir
+        cd ${ABS_PATH_SRC_ROOT}
+        install -s binaries/system/pyrogenesis -Dt ${APPDIR}/usr/bin
+        install -s binaries/system/ActorEditor -Dt ${APPDIR}/usr/bin
+        cd ${APPDIR}/usr/bin
+        ln -s pyrogenesis 0ad
+        for lib in libmozjs78-ps-release.so \
+                libnvcore.so    \
+                libnvimage.so   \
+                libnvmath.so    \
+                libnvtt.so
+        do
+          patchelf --set-rpath $lib:${ABS_PATH_SRC_ROOT}/binaries/system pyrogenesis
+        done
+        patchelf --set-rpath libAtlasUI.so:${ABS_PATH_SRC_ROOT}/binaries/system ActorEditor
+        # Note that binaries/system{libmoz*.so, libnv*.so, libAtlasUI.so} will be copied into
+        # the ${APPDIR} folder automatically when linuxdeploy is run below.
+        cd ${ABS_PATH_SRC_ROOT}
+        install binaries/system/libCollada.so -Dt ${APPDIR}/usr/lib
+        install build/resources/0ad.appdata.xml -Dt ${APPDIR}/usr/share/appdata
+        install build/resources/0ad.desktop -Dt ${APPDIR}/usr/share/applications
+        install build/resources/0ad.png -Dt ${APPDIR}/usr/share/pixmaps
+        mkdir -p ${APPDIR}/usr/data/config
+        cp -a binaries/data/config/default.cfg ${APPDIR}/usr/data/config
+        cp -a binaries/data/l10n ${APPDIR}/usr/data
+        cp -a binaries/data/tools ${APPDIR}/usr/data # for Atlas
+        cp -a binaries/data/mods ${APPDIR}/usr/data
+        # Create the image
+        cd ${ABS_PATH_WORK_DIR}
+        DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
+        linuxdeploy -d ${APPDIR}/usr/share/applications/0ad.desktop \
+          --icon-file=${APPDIR}/usr/share/pixmaps/0ad.png \
+          --icon-filename=0ad \
+          --executable ${APPDIR}/usr/bin/pyrogenesis \
+          --appdir ${APPDIR} \
+          --output appimage \
+          --plugin gtk
 
     - name: Release AppImage
       uses: ncipollo/release-action@v1
