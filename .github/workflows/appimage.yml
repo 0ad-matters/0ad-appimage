@@ -85,7 +85,7 @@ jobs:
         # Create the image
         cd ${ABS_PATH_WORK_DIR}
         DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
-        ./linuxdeploy -d ${APPDIR}/usr/share/applications/0ad.desktop \
+        ./linuxdeploy-x86_64.AppImage -d ${APPDIR}/usr/share/applications/0ad.desktop \
           --icon-file=${APPDIR}/usr/share/pixmaps/0ad.png \
           --icon-filename=0ad \
           --executable ${APPDIR}/usr/bin/pyrogenesis \
