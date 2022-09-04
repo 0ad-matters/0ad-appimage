@@ -39,7 +39,7 @@ jobs:
         make -C gcc -j$(nproc)
 
     - name:prepare AppDir
-      run:  |
+      run: |
         ABS_PATH_WORK_DIR=${PWD}
         ABS_PATH_SRC_ROOT=${PWD}/${NAME}-${VERSION}
         if [ ! -d "${ABS_PATH_WORK_DIR}" ]; then
