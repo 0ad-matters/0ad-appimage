@@ -103,6 +103,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: False
         omitBodyDuringUpdate: False
+        tag: ${VERSION}
     - name: remove artifacts
       run: rm *.AppImage
 
