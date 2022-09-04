@@ -92,18 +92,20 @@ jobs:
           --appdir ${APPDIR} \
           --output appimage \
           --plugin gtk
+        mv 0_A.D.-${VERSION}-x86_64.AppImage ${NAME}-${VERSION}-${GITHUB_SHA::5}-x86_64.AppImage
 
     - name: Release AppImage
       uses: ncipollo/release-action@v1
       with:
-        name: ${NAME}-${VERSION}
+        name: ${{ env.NAME }}-${{ env.VERSION }} AppImage
         allowUpdates: True
         prerelease: False
-        artifacts: "*.AppImage"
+        artifacts: "0ad*.AppImage"
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: False
         omitBodyDuringUpdate: False
-        tag: ${VERSION}
+        tag: v${{ env.VERSION }}
+        replacesArtifacts: true
     - name: remove artifacts
-      run: rm *.AppImage
+      run: rm 0ad*.AppImage
 
