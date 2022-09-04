@@ -38,7 +38,7 @@ jobs:
     - name: build
       run: |
         cd ${NAME}-${VERSION}/build/workspaces
-        ./update-workspaces -j$(nproc) config=release --without-pch
+        ./update-workspaces.sh -j$(nproc) config=release --without-pch
         make -C gcc -j$(nproc)
 
     - name: prepare AppDir
