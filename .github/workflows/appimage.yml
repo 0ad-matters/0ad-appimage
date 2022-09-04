@@ -1,4 +1,7 @@
 name: Release Appimage
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -26,7 +29,7 @@ jobs:
             libfreetype-dev libfreetype6 libfreetype6-dev   \
             libgloox-dev libicu-dev libminiupnpc-dev libnvtt-dev libogg-dev   \
             libopenal-dev libpng-dev libsdl2-dev libsodium-dev libvorbis-dev   \
-            libxml2-dev python rustc subversion zlib1g-dev libwxgtk3.0-dev wx-common
+            libxml2-dev python rustc subversion zlib1g-dev libwxgtk3.0-gtk3-dev wx-common
         wget -c https://releases.wildfiregames.com/${NAME}-${VERSION}-unix-build.tar.xz
         wget -c https://releases.wildfiregames.com/${NAME}-${VERSION}-unix-data.tar.xz
         tar xJf ${NAME}-${VERSION}-unix-build.tar.xz
@@ -80,7 +83,7 @@ jobs:
         # Create the image
         cd ${ABS_PATH_WORK_DIR}
         DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
-        linuxdeploy -d ${APPDIR}/usr/share/applications/0ad.desktop \
+        ./linuxdeploy -d ${APPDIR}/usr/share/applications/0ad.desktop \
           --icon-file=${APPDIR}/usr/share/pixmaps/0ad.png \
           --icon-filename=0ad \
           --executable ${APPDIR}/usr/bin/pyrogenesis \
