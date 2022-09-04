@@ -38,7 +38,7 @@ jobs:
         ./update-workspaces -j$(nproc) --without-pch
         make -C gcc -j$(nproc)
 
-    - name:prepare AppDir
+    - name: prepare AppDir
       run: |
         ABS_PATH_WORK_DIR=${PWD}
         ABS_PATH_SRC_ROOT=${PWD}/${NAME}-${VERSION}
