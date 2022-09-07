@@ -8,7 +8,7 @@ on:
     branches: [ "trunk" ]
 
 env:
-  VERSION: 0.0.25b-alpha
+  VERSION: 0.0.26-rc3-27067
   NAME: 0ad
   SHELL: /bin/bash # needed for spidermonkey build
 
@@ -31,10 +31,10 @@ jobs:
             libgloox-dev libicu-dev libminiupnpc-dev libnvtt-dev libogg-dev   \
             libopenal-dev libpng-dev libsdl2-dev libsodium-dev libvorbis-dev   \
             libxml2-dev python rustc subversion zlib1g-dev libwxgtk3.0-gtk3-dev wx-common
-        wget -c https://releases.wildfiregames.com/${NAME}-${VERSION}-unix-build.tar.xz
+        wget -c http://releases.wildfiregames.com/rc/${NAME}-${VERSION}-unix-build.tar.xz
         tar xJf ${NAME}-${VERSION}-unix-build.tar.xz
         echo "Getting data and extracting archive..."
-        wget --quiet -c https://releases.wildfiregames.com/${NAME}-${VERSION}-unix-data.tar.xz
+        wget --quiet -c http://releases.wildfiregames.com/rc/${NAME}-${VERSION}-unix-data.tar.xz
         tar xJf ${NAME}-${VERSION}-unix-data.tar.xz
 
     - name: build
@@ -107,5 +107,5 @@ jobs:
         tag: v${{ env.VERSION }}
         replacesArtifacts: true
     - name: remove artifacts
-      run: rm 0ad*.AppImage
+      run: rm ${{ env.NAME }}*.AppImage
 
