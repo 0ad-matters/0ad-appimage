@@ -31,10 +31,16 @@ jobs:
             libgloox-dev libicu-dev libminiupnpc-dev libnvtt-dev libogg-dev   \
             libopenal-dev libpng-dev libsdl2-dev libsodium-dev libvorbis-dev   \
             libxml2-dev python rustc subversion zlib1g-dev libwxgtk3.0-gtk3-dev wx-common
+        # Get, check, and extract source
+        wget -c http://releases.wildfiregames.com/rc/${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
         wget -c http://releases.wildfiregames.com/rc/${NAME}-${VERSION}-unix-build.tar.xz
+        sha1sum -c ${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
         tar xJf ${NAME}-${VERSION}-unix-build.tar.xz
+        # Get, check, and extract data
         echo "Getting data and extracting archive..."
+        wget -c http://releases.wildfiregames.com/rc/${NAME}-${VERSION}-unix-data.tar.xz.sha1sum
         wget --quiet -c http://releases.wildfiregames.com/rc/${NAME}-${VERSION}-unix-data.tar.xz
+        sha1sum -c ${NAME}-${VERSION}-unix-data.tar.xz.sha1sum
         tar xJf ${NAME}-${VERSION}-unix-data.tar.xz
 
     - name: build
@@ -74,7 +80,7 @@ jobs:
         # the ${APPDIR} folder automatically when linuxdeploy is run below.
         cd ${ABS_PATH_SRC_ROOT}
         install binaries/system/libCollada.so -Dt ${APPDIR}/usr/lib
-        install build/resources/0ad.appdata.xml -Dt ${APPDIR}/usr/share/appdata
+        install build/resources/0ad.appdata.xml -Dt ${APPDIR}/usr/share/metainfo
         install build/resources/0ad.desktop -Dt ${APPDIR}/usr/share/applications
         install build/resources/0ad.png -Dt ${APPDIR}/usr/share/pixmaps
         mkdir -p ${APPDIR}/usr/data/config
