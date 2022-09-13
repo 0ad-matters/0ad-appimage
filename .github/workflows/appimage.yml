@@ -8,10 +8,10 @@ on:
     branches: [ "trunk" ]
 
 env:
-  VERSION: 0.0.25b-alpha
+  VERSION: 0.0.26-rc3-27067
   NAME: 0ad
   SHELL: /bin/bash # needed for spidermonkey build
-  URI: https://releases.wildfiregames.com
+  URI: https://releases.wildfiregames.com/rc
   ARCH: x86_64
 
 jobs:
