@@ -13,6 +13,7 @@ env:
   SHELL: /bin/bash # needed for spidermonkey build
   URI: https://releases.wildfiregames.com/rc
   ARCH: x86_64
+  MINISIGN_VERSION: 0.10
 
 jobs:
   build:
@@ -25,6 +26,11 @@ jobs:
         chmod +x linuxdeploy-${ARCH}.AppImage
         wget -c https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
         chmod +x linuxdeploy-plugin-gtk.sh
+        wget https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz
+        wget https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz.minisig
+        MINISIGN_PATH="./minisign-${MINISIGN_VERSION}-linux/x86_64/minisign"
+        tar xf minisign-${MINISIGN_VERSION}-linux.tar.gz
+        $MINISIGN_PATH -Vm minisign-${MINISIGN_VERSION}-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
         sudo apt-get update && sudo apt-get upgrade -y
         sudo apt-get install -y patchelf
         sudo apt-get install -y cargo cmake libboost-dev libboost-system-dev   \
@@ -36,13 +42,17 @@ jobs:
         # Get, check, and extract source
         wget -c ${URI}/${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
         wget -c ${URI}/${NAME}-${VERSION}-unix-build.tar.xz
+        wget ${NAME}-${VERSION}-unix-build.tar.xz.minisig
         sha1sum -c ${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
+        $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-build.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
         tar xJf ${NAME}-${VERSION}-unix-build.tar.xz
         # Get, check, and extract data
         echo "Getting data and extracting archive..."
         wget -c ${URI}/${NAME}-${VERSION}-unix-data.tar.xz.sha1sum
         wget --quiet -c ${URI}/${NAME}-${VERSION}-unix-data.tar.xz
+        wget ${NAME}-${VERSION}-unix-data.tar.xz.minisig
         sha1sum -c ${NAME}-${VERSION}-unix-data.tar.xz.sha1sum
+        $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-data.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
         tar xJf ${NAME}-${VERSION}-unix-data.tar.xz
 
     - name: build
