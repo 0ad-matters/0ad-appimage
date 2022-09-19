@@ -42,7 +42,7 @@ jobs:
         # Get, check, and extract source
         wget -c ${URI}/${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
         wget -c ${URI}/${NAME}-${VERSION}-unix-build.tar.xz
-        wget ${NAME}-${VERSION}-unix-build.tar.xz.minisig
+        wget ${URI}/${NAME}-${VERSION}-unix-build.tar.xz.minisig
         sha1sum -c ${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
         $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-build.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
         tar xJf ${NAME}-${VERSION}-unix-build.tar.xz
@@ -50,7 +50,7 @@ jobs:
         echo "Getting data and extracting archive..."
         wget -c ${URI}/${NAME}-${VERSION}-unix-data.tar.xz.sha1sum
         wget --quiet -c ${URI}/${NAME}-${VERSION}-unix-data.tar.xz
-        wget ${NAME}-${VERSION}-unix-data.tar.xz.minisig
+        wget ${URI}/${NAME}-${VERSION}-unix-data.tar.xz.minisig
         sha1sum -c ${NAME}-${VERSION}-unix-data.tar.xz.sha1sum
         $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-data.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
         tar xJf ${NAME}-${VERSION}-unix-data.tar.xz
