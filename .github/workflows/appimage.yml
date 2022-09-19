@@ -8,10 +8,10 @@ on:
     branches: [ "trunk" ]
 
 env:
-  VERSION: 0.0.26-rc3-27067-alpha
+  VERSION: 0.0.25b-alpha
   NAME: 0ad
   SHELL: /bin/bash # needed for spidermonkey build
-  URI: https://releases.wildfiregames.com/rc
+  URI: https://releases.wildfiregames.com
   ARCH: x86_64
   MINISIGN_VERSION: '0.10'
 
@@ -42,17 +42,21 @@ jobs:
         # Get, check, and extract source
         wget -c ${URI}/${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
         wget -c ${URI}/${NAME}-${VERSION}-unix-build.tar.xz
-        wget ${URI}/${NAME}-${VERSION}-unix-build.tar.xz.minisig
+        if [[ "${URI}/" != *"/rc/"* ]]; then
+          wget ${URI}/${NAME}-${VERSION}-unix-build.tar.xz.minisig
+          $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-build.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+        fi
         sha1sum -c ${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
-        $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-build.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
         tar xJf ${NAME}-${VERSION}-unix-build.tar.xz
         # Get, check, and extract data
         echo "Getting data and extracting archive..."
         wget -c ${URI}/${NAME}-${VERSION}-unix-data.tar.xz.sha1sum
         wget --quiet -c ${URI}/${NAME}-${VERSION}-unix-data.tar.xz
-        wget ${URI}/${NAME}-${VERSION}-unix-data.tar.xz.minisig
+        if [[ "${URI}/" != *"/rc/"* ]]; then
+          wget ${URI}/${NAME}-${VERSION}-unix-data.tar.xz.minisig
+          $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-data.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+        fi
         sha1sum -c ${NAME}-${VERSION}-unix-data.tar.xz.sha1sum
-        $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-data.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
         tar xJf ${NAME}-${VERSION}-unix-data.tar.xz
 
     - name: build
