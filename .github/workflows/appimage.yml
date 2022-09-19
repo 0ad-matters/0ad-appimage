@@ -13,7 +13,7 @@ env:
   SHELL: /bin/bash # needed for spidermonkey build
   URI: https://releases.wildfiregames.com/rc
   ARCH: x86_64
-  MINISIGN_VERSION: 0.10
+  MINISIGN_VERSION: '0.10'
 
 jobs:
   build:
