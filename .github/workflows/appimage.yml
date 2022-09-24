@@ -44,7 +44,7 @@ jobs:
         wget -c ${URI}/${NAME}-${VERSION}-unix-build.tar.xz
         if [[ "${URI}/" != *"/rc/"* ]]; then
           wget ${URI}/${NAME}-${VERSION}-unix-build.tar.xz.minisig
-          $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-build.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+          $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-build.tar.xz -P RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
         fi
         sha1sum -c ${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
         tar xJf ${NAME}-${VERSION}-unix-build.tar.xz
@@ -54,7 +54,7 @@ jobs:
         wget --quiet -c ${URI}/${NAME}-${VERSION}-unix-data.tar.xz
         if [[ "${URI}/" != *"/rc/"* ]]; then
           wget ${URI}/${NAME}-${VERSION}-unix-data.tar.xz.minisig
-          $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-data.tar.xz -P RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+          $MINISIGN_PATH -Vm ${NAME}-${VERSION}-unix-data.tar.xz -P RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
         fi
         sha1sum -c ${NAME}-${VERSION}-unix-data.tar.xz.sha1sum
         tar xJf ${NAME}-${VERSION}-unix-data.tar.xz
