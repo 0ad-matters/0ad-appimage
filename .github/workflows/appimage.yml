@@ -22,12 +22,11 @@ jobs:
       URI: https://releases.wildfiregames.com
       ARCH: x86_64
       MINISIGN_VERSION: '0.10'
-      ABS_PATH_WORK_DIR: /build
     steps:
     - uses: actions/checkout@v3
     - name: Install Dependencies
       run: |
-        cd $ABS_PATH_WORK_DIR
+        cd $WORKDIR_PATH
         wget -nv -c https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
         chmod +x linuxdeploy-$ARCH.AppImage
         ./linuxdeploy-$ARCH.AppImage --appimage-extract
@@ -53,11 +52,10 @@ jobs:
 
     - name: build
       run: |
-        cd $ABS_PATH_WORK_DIR/$NAME-$VERSION/build/workspaces
+        cd $WORKDIR_PATH/$NAME-$VERSION/build/workspaces
         ./update-workspaces.sh  \
           -j$(nproc) \
           config=release \
-          --without-pch && \
           make -C gcc -j$(nproc)
 
     - name: prepare AppDir
@@ -75,8 +73,8 @@ jobs:
         esac
         sha1sum -c $NAME-$VERSION-unix-data.tar.xz.sha1sum
         tar xJf $NAME-$VERSION-unix-data.tar.xz
-        ABS_PATH_SRC_ROOT=$ABS_PATH_WORK_DIR/$NAME-$VERSION
-        if [ ! -d "$ABS_PATH_WORK_DIR" ]; then
+        ABS_PATH_SRC_ROOT=$WORKDIR_PATH/$NAME-$VERSION
+        if [ ! -d "$WORKDIR_PATH" ]; then
           echo "The work dir must be an absolute path to an existing directory."
           exit 1
         fi
@@ -84,7 +82,7 @@ jobs:
           echo "set the source root!"
           exit 1
         fi
-        APPDIR=$ABS_PATH_WORK_DIR/AppDir
+        APPDIR=$WORKDIR_PATH/AppDir
         cd $ABS_PATH_SRC_ROOT
         install -s binaries/system/pyrogenesis -Dt $APPDIR/usr/bin
         install -s binaries/system/ActorEditor -Dt $APPDIR/usr/bin
@@ -112,7 +110,7 @@ jobs:
         cp -a binaries/data/tools $APPDIR/usr/data # for Atlas
         cp -a binaries/data/mods $APPDIR/usr/data
         # Create the image
-        cd $ABS_PATH_WORK_DIR
+        cd $WORKDIR_PATH
         DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
         ./squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad.desktop \
           --icon-file=$APPDIR/usr/share/pixmaps/0ad.png \
