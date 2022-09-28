@@ -18,8 +18,12 @@ env:
   MINISIGN_VERSION: '0.10'
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  # Label of the container job
+  build-appimage:
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+    # Docker Hub image that `container-job` executes in
+    container: andy5995/0ad-build-env:bionic
     steps:
     - uses: actions/checkout@v3
     - name: Install Dependencies
