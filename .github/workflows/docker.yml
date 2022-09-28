@@ -23,11 +23,9 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       -
         name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
-          context: ./
-          file: ./Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
+          context: .
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:bionic
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:buildcache
