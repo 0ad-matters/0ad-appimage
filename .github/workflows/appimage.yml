@@ -55,10 +55,9 @@ jobs:
     - name: build
       run: |
         cd $ABS_PATH_WORK_DIR/$NAME-$VERSION/build/workspaces
-        su 0ad --command "./update-workspaces.sh  \
-          -j$(nproc) \
-          config=release \
-          make -C gcc -j$(nproc)"
+        su 0ad --command "./update-workspaces.sh \
+          -j$(nproc) && \
+          make config=release -C gcc -j$(nproc)"
 
     - name: prepare AppDir
       run: |
