@@ -42,7 +42,6 @@ jobs:
         # Get, check, and extract source
         wget -c ${URI}/$NAME-$VERSION-unix-build.tar.xz.sha1sum
         wget -c ${URI}/$NAME-$VERSION-unix-build.tar.xz
-        ${fullstring##*$substring*}
         if [ ! "${URI/##*/rc/*}" ]; then
           wget $URI/$NAME-$VERSION-unix-build.tar.xz.minisig
           $MINISIGN_PATH -Vm $NAME-$VERSION-unix-build.tar.xz -P RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
