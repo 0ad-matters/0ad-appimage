@@ -22,12 +22,11 @@ jobs:
       URI: https://releases.wildfiregames.com
       ARCH: x86_64
       MINISIGN_VERSION: '0.10'
-      ABS_PATH_WORK_DIR: ${{ github.workspace }}/build
+      ABS_PATH_WORK_DIR: /build
     steps:
     - uses: actions/checkout@v3
     - name: Install Dependencies
       run: |
-        mkdir -m 777 -p $ABS_PATH_WORK_DIR
         cd $ABS_PATH_WORK_DIR
         wget -nv -c https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
         chmod +x linuxdeploy-$ARCH.AppImage
@@ -50,16 +49,16 @@ jobs:
           ;;
         esac
         sha1sum -c $NAME-$VERSION-unix-build.tar.xz.sha1sum
-        su 0ad --command "tar xJf $NAME-$VERSION-unix-build.tar.xz"
+        tar xJf $NAME-$VERSION-unix-build.tar.xz
 
     - name: build
       run: |
         cd $ABS_PATH_WORK_DIR/$NAME-$VERSION/build/workspaces
-        su 0ad --command "./update-workspaces.sh  \
+        ./update-workspaces.sh  \
           -j$(nproc) \
           config=release \
           --without-pch && \
-          make -C gcc -j$(nproc)"
+          make -C gcc -j$(nproc)
 
     - name: prepare AppDir
       run: |
@@ -75,7 +74,7 @@ jobs:
           ;;
         esac
         sha1sum -c $NAME-$VERSION-unix-data.tar.xz.sha1sum
-        su 0ad --command "tar xJf $NAME-$VERSION-unix-data.tar.xz"
+        tar xJf $NAME-$VERSION-unix-data.tar.xz
         ABS_PATH_SRC_ROOT=$ABS_PATH_WORK_DIR/$NAME-$VERSION
         if [ ! -d "$ABS_PATH_WORK_DIR" ]; then
           echo "The work dir must be an absolute path to an existing directory."
