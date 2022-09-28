@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-RUN apt update && \
+RUN apt update && apt -y upgrade && \
     apt install -y build-essential cargo cmake libboost-dev libboost-system-dev   \
     libboost-filesystem-dev libcurl4-gnutls-dev libenet-dev libfmt-dev   \
     libfreetype6-dev libgloox-dev libicu-dev \
