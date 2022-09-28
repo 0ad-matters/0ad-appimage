@@ -7,8 +7,6 @@ on:
     paths:
       - '.github/workflows/docker.yml'
       - 'Dockerfile'
-    paths-ignore:
-      - '**/*.md'
 
 jobs:
   build:
