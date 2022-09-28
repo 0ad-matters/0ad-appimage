@@ -17,5 +17,3 @@ RUN apt update && apt -y upgrade && \
 WORKDIR $WORKDIR_PATH
 RUN useradd -M -U 0ad && passwd -d 0ad
 RUN chown 0ad:0ad $WORKDIR_PATH
-USER 0ad
-
