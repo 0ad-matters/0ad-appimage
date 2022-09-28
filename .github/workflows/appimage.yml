@@ -30,6 +30,7 @@ jobs:
       run: |
         wget -nv -c https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
         chmod +x linuxdeploy-${ARCH}.AppImage
+        ./linuxdeploy-${ARCH}.AppImage --appimage-extract
         wget -c https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
         chmod +x linuxdeploy-plugin-gtk.sh
         wget https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz
@@ -37,14 +38,7 @@ jobs:
         MINISIGN_PATH="./minisign-${MINISIGN_VERSION}-linux/x86_64/minisign"
         tar xf minisign-${MINISIGN_VERSION}-linux.tar.gz
         $MINISIGN_PATH -Vm minisign-${MINISIGN_VERSION}-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
-        sudo apt-get update && sudo apt-get upgrade -y
-        sudo apt-get install -y patchelf
-        sudo apt-get install -y cargo cmake libboost-dev libboost-system-dev   \
-            libboost-filesystem-dev libcurl4-gnutls-dev libenet-dev libfmt-dev   \
-            libfreetype-dev libfreetype6 libfreetype6-dev   \
-            libgloox-dev libicu-dev libminiupnpc-dev libnvtt-dev libogg-dev   \
-            libopenal-dev libpng-dev libsdl2-dev libsodium-dev libvorbis-dev   \
-            libxml2-dev python rustc subversion zlib1g-dev libwxgtk3.0-gtk3-dev wx-common
+        apt-get install -y patchelf
         # Get, check, and extract source
         wget -c ${URI}/${NAME}-${VERSION}-unix-build.tar.xz.sha1sum
         wget -c ${URI}/${NAME}-${VERSION}-unix-build.tar.xz
@@ -113,7 +107,7 @@ jobs:
         # Create the image
         cd ${ABS_PATH_WORK_DIR}
         DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
-        ./linuxdeploy-${ARCH}.AppImage -d ${APPDIR}/usr/share/applications/0ad.desktop \
+        ./squashfs-root/AppRun -d ${APPDIR}/usr/share/applications/0ad.desktop \
           --icon-file=${APPDIR}/usr/share/pixmaps/0ad.png \
           --icon-filename=0ad \
           --executable ${APPDIR}/usr/bin/pyrogenesis \
