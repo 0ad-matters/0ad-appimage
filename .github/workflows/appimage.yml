@@ -8,8 +8,6 @@ on:
     branches: [ "trunk" ]
     paths:
       - '.github/workflows/appimage.yml'
-    paths-ignore:
-      - '**/*.md'
 
 env:
   VERSION: 0.0.26-alpha
