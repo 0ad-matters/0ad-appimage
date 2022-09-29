@@ -9,6 +9,9 @@ on:
     paths:
       - '.github/workflows/appimage.yml'
 
+env:
+  MINISIGN_VERSION: '0.10'
+
 jobs:
   # Label of the container job
   build-appimage:
@@ -21,7 +24,7 @@ jobs:
       NAME: 0ad
       URI: https://releases.wildfiregames.com
       ARCH: x86_64
-      MINISIGN_VERSION: '0.10'
+      MINISIGN_PATH="./minisign-${{ env.MINISIGN_VERSION }}-linux/x86_64/minisign"
       ABS_PATH_WORK_DIR: ${{ github.workspace }}/build
     steps:
     - uses: actions/checkout@v3
@@ -36,7 +39,6 @@ jobs:
         chmod +x linuxdeploy-plugin-gtk.sh
         wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz
         wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz.minisig
-        MINISIGN_PATH="./minisign-${MINISIGN_VERSION}-linux/x86_64/minisign"
         tar xf minisign-${MINISIGN_VERSION}-linux.tar.gz
         $MINISIGN_PATH -Vm minisign-${MINISIGN_VERSION}-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
         # Get, check, and extract source
@@ -62,7 +64,6 @@ jobs:
     - name: prepare AppDir
       run: |
         cd $ABS_PATH_WORK_DIR
-        MINISIGN_PATH="./minisign-${MINISIGN_VERSION}-linux/x86_64/minisign"
         # Get, check, and extract data
         echo "Getting data and extracting archive..."
         wget -nv $URI/$NAME-$VERSION-unix-data.tar.xz.sha1sum
@@ -125,7 +126,6 @@ jobs:
         mv 0_A.D.-$VERSION-$ARCH.AppImage $NAME-$VERSION-$(printf %.5s $GITHUB_SHA)-$ARCH.AppImage
         echo "Generating sha1sum..."
         sha1sum $NAME-$VERSION-$(printf %.5s $GITHUB_SHA)-$ARCH.AppImage > $NAME-$VERSION-$(printf %.5s $GITHUB_SHA)-$ARCH.AppImage.sha1sum
-
     - name: Release AppImage
       uses: ncipollo/release-action@v1
       with:
