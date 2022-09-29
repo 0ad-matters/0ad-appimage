@@ -3,7 +3,6 @@ FROM ubuntu:bionic
 # needed for spidermonkey build
 ENV SHELL=/bin/bash
 
-ENV WORKDIR_PATH=/build
 ENV CC=gcc-8 CXX=g++-8
 RUN apt update && apt -y upgrade && \
     apt install -y $CC $CXX build-essential cargo cmake libboost-dev libboost-system-dev   \
@@ -14,6 +13,4 @@ RUN apt update && apt -y upgrade && \
     libopenal-dev libogg-dev libwxgtk3.0-gtk3-dev && \
     apt install -y wget patchelf
 
-WORKDIR $WORKDIR_PATH
 RUN useradd -M -U 0ad && passwd -d 0ad
-RUN chown 0ad:0ad $WORKDIR_PATH
