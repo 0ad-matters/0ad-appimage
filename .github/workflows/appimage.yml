@@ -25,12 +25,13 @@ jobs:
       URI: https://releases.wildfiregames.com
       ARCH: x86_64
       MINISIGN_KEY: RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
-      MINISIGN_PATH: ./minisign-${{ env.MINISIGN_VERSION }}-linux/x86_64/minisign
       ABS_PATH_WORK_DIR: ${{ github.workspace }}/build
     steps:
     - uses: actions/checkout@v3
     - name: Install Dependencies
       run: |
+        MINISIGN_PATH="./minisign-$MINISIGN_VERSION-linux/x86_64/minisign
+        echo $MINISIGN_PATH >> $GITHUB_ENV
         mkdir -m 777 -p $ABS_PATH_WORK_DIR
         cd $ABS_PATH_WORK_DIR
         # This test can be removed if the workflow is successful
