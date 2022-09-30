@@ -11,7 +11,7 @@ HERE="$(readlink -f "$(dirname "$0")")"
 
 source "$HERE"/apprun-hooks/"linuxdeploy-plugin-gtk.sh"
 
-if [ -z $APPIMAGE ] ; then
+if [ -n $APPIMAGE ]; then
   BINARY_NAME=$(basename "$ARGV0")
   if [ "$BINARY_NAME" = "pyrogenesis" -o "$BINARY_NAME" = "0ad" ] ; then
     exec "$HERE/usr/bin/pyrogenesis" "$@"
