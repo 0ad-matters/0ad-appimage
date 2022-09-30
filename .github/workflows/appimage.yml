@@ -30,7 +30,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install Dependencies
       run: |
-        MINISIGN_PATH="./minisign-$MINISIGN_VERSION-linux/x86_64/minisign
+        MINISIGN_PATH="./minisign-$MINISIGN_VERSION-linux/x86_64/minisign"
         echo $MINISIGN_PATH >> $GITHUB_ENV
         mkdir -m 777 -p $ABS_PATH_WORK_DIR
         cd $ABS_PATH_WORK_DIR
