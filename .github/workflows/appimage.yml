@@ -11,7 +11,7 @@ on:
 
 env:
   MINISIGN_VERSION: '0.10'
-  MINISIGN_PATH="./minisign-0.10-linux/x86_64/minisign"
+  MINISIGN_PATH: './minisign-0.10-linux/x86_64/minisign'
 
 jobs:
   # Label of the container job
