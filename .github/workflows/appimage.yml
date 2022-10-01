@@ -8,6 +8,10 @@ on:
     branches: [ "trunk" ]
     paths:
       - '.github/workflows/appimage.yml'
+  pull_request:
+    branches: [ "trunk" ]
+    paths:
+      - '.github/workflows/appimage.yml'
 
 env:
   MINISIGN_VERSION: '0.10'
@@ -119,10 +123,12 @@ jobs:
           --appdir $APPDIR \
           --output appimage \
           --plugin gtk
-        mv 0_A.D.-$VERSION-$ARCH.AppImage $NAME-$VERSION-$(printf %.5s $GITHUB_SHA)-$ARCH.AppImage
+        DATE_STR=$(date +%y%m%d%H%M)
+        mv 0_A.D.-$VERSION-$ARCH.AppImage $NAME-$VERSION-$DATE_STR-$ARCH.AppImage
         echo "Generating sha1sum..."
-        sha1sum $NAME-$VERSION-$(printf %.5s $GITHUB_SHA)-$ARCH.AppImage > $NAME-$VERSION-$(printf %.5s $GITHUB_SHA)-$ARCH.AppImage.sha1sum
+        sha1sum $NAME-$VERSION-$DATE_STR-$ARCH.AppImage > $NAME-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
     - name: Release AppImage
+      if: ${{ github.ref == 'refs/heads/trunk' }}
       uses: ncipollo/release-action@v1
       with:
         name: ${{ env.NAME }}-${{ env.VERSION }} AppImage
@@ -134,6 +140,12 @@ jobs:
         omitBodyDuringUpdate: False
         tag: v${{ env.VERSION }}
         replacesArtifacts: true
-    - name: remove artifacts
-      run: rm ${{ env.ABS_PATH_WORK_DIR }}/${{ env.NAME }}*.AppImage*
+    - name: Upload Artifacts
+      if: ${{ github.ref != 'refs/heads/trunk' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: AppImage
+        path: ${{ env.ABS_PATH_WORK_DIR }}/${{ env.NAME }}*.AppImage*
+
+
 
