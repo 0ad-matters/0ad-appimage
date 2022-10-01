@@ -1,4 +1,4 @@
-#! /usr/bin/sh
+#!/bin/sh
 
 # The purpose of this custom AppRun script is
 # to allow symlinking the AppImage and invoking
@@ -8,16 +8,13 @@
 set -e
 
 HERE="$(readlink -f "$(dirname "$0")")"
-
 source "$HERE"/apprun-hooks/"linuxdeploy-plugin-gtk.sh"
+BINARY_NAME=$(basename "$ARGV0")
 
-if [ -n $APPIMAGE ]; then
-  BINARY_NAME=$(basename "$ARGV0")
-  if [ "$BINARY_NAME" = "pyrogenesis" -o "$BINARY_NAME" = "0ad" ] ; then
-    exec "$HERE/usr/bin/pyrogenesis" "$@"
-  elif [ "$BINARY_NAME" = "ActorEditor" ]; then
-    exec "$HERE/usr/bin/ActorEditor" "$@"
-  else
-    exec "$HERE/usr/bin/pyrogenesis" "$@"
-  fi
+if [ "$BINARY_NAME" = "pyrogenesis" -o "$BINARY_NAME" = "0ad" ] ; then
+  exec "$HERE/usr/bin/pyrogenesis" "$@"
+elif [ "$BINARY_NAME" = "ActorEditor" ]; then
+  exec "$HERE/usr/bin/ActorEditor" "$@"
+else
+  exec "$HERE/usr/bin/pyrogenesis" "$@"
 fi
