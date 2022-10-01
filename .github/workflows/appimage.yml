@@ -1,7 +1,7 @@
 name: Release Appimage
-concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
+#concurrency:
+  #group: build-${{ github.ref }}
+  #cancel-in-progress: true
 
 on:
   push:
@@ -25,11 +25,11 @@ jobs:
     # Docker Hub image that `container-job` executes in
     container: andy5995/0ad-build-env:bionic
     env:
-      VERSION: 0.0.25b-alpha
+      VERSION: 0.0.26-alpha
       NAME: 0ad
       URI: https://releases.wildfiregames.com
       ARCH: x86_64
-      MINISIGN_KEY: RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+      MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
       ABS_PATH_WORK_DIR: ${{ github.workspace }}/build
     steps:
     - uses: actions/checkout@v3
