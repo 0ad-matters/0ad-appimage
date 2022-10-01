@@ -13,3 +13,9 @@ link](https://devdojo.com/devdojo/what-is-a-symlink):
 
     cd /path/to/<Appimage-File>
     ln -s <Appimage-File> ActorEditor
+
+You can optionally create symbolic links for `0ad` and `pyrogenesis`
+if desired:
+
+    ln -s <Appimage-File> 0ad
+    ln -s <Appimage-File> pyrogenesis
