@@ -25,14 +25,14 @@ jobs:
     # Docker Hub image that `container-job` executes in
     container: andy5995/0ad-build-env:bionic
     env:
-      VERSION: 0.0.25b-alpha
+      VERSION: 0.0.26-alpha
       NAME: 0ad
       URI: https://releases.wildfiregames.com
       ARCH: x86_64
       # key for a26
-      # MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
+      MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
       # key for a25
-      MINISIGN_KEY: RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+      # MINISIGN_KEY: RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
       ABS_PATH_WORK_DIR: ${{ github.workspace }}/build
     steps:
     - uses: actions/checkout@v3
@@ -122,6 +122,7 @@ jobs:
           --icon-file=$APPDIR/usr/share/pixmaps/0ad.png \
           --icon-filename=0ad \
           --executable $APPDIR/usr/bin/pyrogenesis \
+          --library=/usr/lib/libthai.so.0 \
           --custom-apprun=$ABS_PATH_WORK_DIR/../AppRun \
           --appdir $APPDIR \
           --output appimage \
@@ -132,7 +133,7 @@ jobs:
         sha1sum $NAME-$VERSION-$DATE_STR-$ARCH.AppImage > $NAME-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
     - name: Release AppImage
       if: ${{ github.ref == 'refs/heads/trunk' }}
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@v1.11.1
       with:
         name: ${{ env.NAME }}-${{ env.VERSION }} AppImage
         allowUpdates: True
