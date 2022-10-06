@@ -102,6 +102,7 @@ jobs:
         do
           patchelf --set-rpath $lib:$ABS_PATH_SRC_ROOT/binaries/system pyrogenesis
         done
+        patchelf --set-rpath libthai.so.0:$APPDIR/usr/lib ActorEditor
         patchelf --set-rpath libAtlasUI.so:$ABS_PATH_SRC_ROOT/binaries/system ActorEditor
         # Note that binaries/system{libmoz*.so, libnv*.so, libAtlasUI.so} will be copied into
         # the $APPDIR folder automatically when linuxdeploy is run below.
