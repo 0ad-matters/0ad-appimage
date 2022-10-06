@@ -122,7 +122,7 @@ jobs:
           --icon-file=$APPDIR/usr/share/pixmaps/0ad.png \
           --icon-filename=0ad \
           --executable $APPDIR/usr/bin/pyrogenesis \
-          --library=/usr/lib/libthai.so.0 \
+          --library=/usr/lib/x86_64-linux-gnu/libthai.so.0 \
           --custom-apprun=$ABS_PATH_WORK_DIR/../AppRun \
           --appdir $APPDIR \
           --output appimage \
