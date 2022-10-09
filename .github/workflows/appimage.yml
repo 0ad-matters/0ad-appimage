@@ -118,6 +118,9 @@ jobs:
         cp -a binaries/data/mods $APPDIR/usr/data
         # Create the image
         cd $ABS_PATH_WORK_DIR
+        export NAME # used by linuxdeploy when creating the output file
+        export VERSION
+        export ARCH
         DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
         ./squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad.desktop \
           --icon-file=$APPDIR/usr/share/pixmaps/0ad.png \
@@ -129,7 +132,6 @@ jobs:
           --output appimage \
           --plugin gtk
         DATE_STR=$(date +%y%m%d%H%M)
-        mv 0_A.D.-$VERSION-$ARCH.AppImage $NAME-$VERSION-$DATE_STR-$ARCH.AppImage
         echo "Generating sha1sum..."
         sha1sum $NAME-$VERSION-$DATE_STR-$ARCH.AppImage > $NAME-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
     - name: Release AppImage
