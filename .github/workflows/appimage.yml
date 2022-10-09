@@ -134,7 +134,7 @@ jobs:
         sha1sum $NAME-$VERSION-$DATE_STR-$ARCH.AppImage > $NAME-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
     - name: Release AppImage
       if: ${{ github.ref == 'refs/heads/trunk' }}
-      uses: ncipollo/release-action@v1.11.1
+      uses: ncipollo/release-action@v1
       with:
         name: ${{ env.NAME }}-${{ env.VERSION }} AppImage
         allowUpdates: True
