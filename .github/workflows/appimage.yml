@@ -118,9 +118,9 @@ jobs:
         cp -a binaries/data/mods $APPDIR/usr/data
         # Create the image
         cd $ABS_PATH_WORK_DIR
-        export NAME # used by linuxdeploy when creating the output file
-        export VERSION
-        export ARCH
+        export NAME=$NAME # used by linuxdeploy when creating the output file
+        export VERSION=$VERSION
+        export ARCH=$ARCH
         DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
         ./squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad.desktop \
           --icon-file=$APPDIR/usr/share/pixmaps/0ad.png \
