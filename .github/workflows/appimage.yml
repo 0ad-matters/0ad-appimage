@@ -27,14 +27,14 @@ jobs:
     # Docker Hub image that `container-job` executes in
     container: andy5995/0ad-build-env:bionic
     env:
-      VERSION: 0.0.26-alpha
+      VERSION: 0.0.25b-alpha
       NAME: 0ad
       URI: https://releases.wildfiregames.com
       ARCH: x86_64
       # key for a26
-      MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
+      # MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
       # key for a25
-      # MINISIGN_KEY: RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+      MINISIGN_KEY: RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
       ABS_PATH_WORK_DIR: ${{ github.workspace }}/build
     steps:
     - uses: actions/checkout@v3
