@@ -16,6 +16,7 @@ on:
       - 'AppRun'
 
 env:
+  BUILD_TYPE: debug
   MINISIGN_VERSION: '0.10'
   MINISIGN_PATH: './minisign-0.10-linux/x86_64/minisign'
 
@@ -27,14 +28,14 @@ jobs:
     # Docker Hub image that `container-job` executes in
     container: andy5995/0ad-build-env:bionic
     env:
-      VERSION: 0.0.25b-alpha
+      VERSION: 0.0.26-alpha
       NAME: 0ad
       URI: https://releases.wildfiregames.com
       ARCH: x86_64
       # key for a26
-      # MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
+      MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
       # key for a25
-      MINISIGN_KEY: RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+      # MINISIGN_KEY: RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
       ABS_PATH_WORK_DIR: ${{ github.workspace }}/build
     steps:
     - uses: actions/checkout@v3
@@ -66,7 +67,7 @@ jobs:
         cd $ABS_PATH_WORK_DIR/$NAME-$VERSION/build/workspaces
         su 0ad --command "./update-workspaces.sh \
           -j$(nproc) && \
-          make config=release -C gcc -j$(nproc)"
+          make config=$BUILD_TYPE -C gcc -j$(nproc)"
 
     - name: prepare AppDir
       run: |
@@ -96,7 +97,7 @@ jobs:
         install -s binaries/system/ActorEditor -Dt $APPDIR/usr/bin
         cd $APPDIR/usr/bin
         ln -s pyrogenesis 0ad
-        for lib in libmozjs78-ps-release.so \
+        for lib in libmozjs78-ps-$BUILD_TYPE.so \
                 libnvcore.so    \
                 libnvimage.so   \
                 libnvmath.so    \
@@ -131,9 +132,14 @@ jobs:
           --output appimage \
           --plugin gtk
         DATE_STR=$(date +%y%m%d%H%M)
-        mv 0_A.D.-$VERSION-$ARCH.AppImage $NAME-$VERSION-$DATE_STR-$ARCH.AppImage
+        VER_APPEND=""
+        if [ "$BUILD_TYPE" = "debug" ]; then
+          VER_APPEND="-dbg"
+        fi
+        OUT_FILE=$NAME-$VERSION$VER_APPEND-$DATE_STR-$ARCH
+        mv 0_A.D.-$VERSION-$ARCH.AppImage $OUT_FILE
         echo "Generating sha1sum..."
-        sha1sum $NAME-$VERSION-$DATE_STR-$ARCH.AppImage > $NAME-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
+        sha1sum $OUT_FILE > $OUT_FILE.sha1sum
     - name: Release AppImage
       if: ${{ github.ref == 'refs/heads/trunk' }}
       uses: ncipollo/release-action@v1
