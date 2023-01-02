@@ -1,15 +1,8 @@
 #!/bin/bash
 set -ev
 
-URI=https://releases.wildfiregames.com
-
-# key for a26
-MINISIGN_KEY=RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
-# key for a25
-# MINISIGN_KEY=RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
-
 if [ -z "$WORKSPACE" ]; then
-  echo "WORKSPACE must be set"
+  echo "WORKSPACE must be set."
   exit 1
 fi
 cd $WORKSPACE
@@ -18,13 +11,39 @@ if [ ! -e "AppRun" ]; then
   exit 1
 fi
 
+ARCH=x86_64
+MINISIGN_VERSION="0.10"
+TOOLS_DIR="/tools"
+MINISIGN_PATH="$TOOLS_DIR/minisign-$MINISIGN_VERSION-linux/x86_64/minisign"
+URI=https://releases.wildfiregames.com
+
+mkdir -m 777 -p $TOOLS_DIR
+cd $TOOLS_DIR
+wget -nv https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+chmod +x linuxdeploy-$ARCH.AppImage
+./linuxdeploy-$ARCH.AppImage --appimage-extract
+
+wget -nv https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
+chmod +x linuxdeploy-plugin-gtk.sh
+
+wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz
+wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz.minisig
+tar xf minisign-$MINISIGN_VERSION-linux.tar.gz
+$MINISIGN_PATH -Vm minisign-$MINISIGN_VERSION-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
+
+# key for a26
+MINISIGN_KEY=RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
+# key for a25
+# MINISIGN_KEY=RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+
+cd "$WORKSPACE"
 # Get, check, and extract source
-source=$NAME-$VERSION-unix-build.tar.xz
+source=0ad-$VERSION-unix-build.tar.xz
 source_sum=$source.sha1sum
 
 for file in $source $source_sum; do
-  if [ ! -e $file ]; then
-    wget -nv $URI/$file
+  if [ ! -r "$file" ]; then
+    wget -nv "$URI/$file"
   fi
 done
 
@@ -32,13 +51,15 @@ if [ -n "${URI##*/rc*}" ]; then
   wget -nc $URI/$source.minisig
   $MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
 fi
-
 sha1sum -c $source_sum
+
+BUILD_DIR="/build"
+mkdir -m 777 -p $BUILD_DIR
 cd $BUILD_DIR
 su 0ad --command "tar xJf $WORKSPACE/$source"
 
 # name: build
-cd $NAME-$VERSION/build/workspaces
+cd 0ad-$VERSION/build/workspaces
 su 0ad --command "./update-workspaces.sh \
   -j$(nproc) && \
   make config=release -C gcc -j$(nproc)"
@@ -46,11 +67,11 @@ su 0ad --command "./update-workspaces.sh \
 # name: prepare AppDir
 cd $WORKSPACE
 # Get, check, and extract data
-data=$NAME-$VERSION-unix-data.tar.xz
+data=0ad-$VERSION-unix-data.tar.xz
 data_sum=$data.sha1sum
 echo "Getting data and extracting archive..."
 for file in $data $data_sum; do
-  if [ ! -e $file ]; then
+  if [ ! -r $file ]; then
     wget -nv $URI/$file
   fi
 done
@@ -62,15 +83,13 @@ fi
 $MINISIGN_PATH -Vm $data -P $MINISIGN_KEY
 sha1sum -c $data_sum
 su 0ad --command "tar xJf $data -C $BUILD_DIR"
-ABS_PATH_SRC_ROOT="$BUILD_DIR/$NAME-$VERSION"
-#if [ ! -d "$ABS_PATH_WORK_DIR" ]; then
-  #echo "The work dir must be an absolute path to an existing directory."
-  #exit 1
-#fi
+
+ABS_PATH_SRC_ROOT="$BUILD_DIR/0ad-$VERSION"
 if [ ! -r "$ABS_PATH_SRC_ROOT/source/main.cpp" ]; then
   echo "set the source root!"
   exit 1
 fi
+
 APPDIR="$BUILD_DIR/AppDir"
 cd $ABS_PATH_SRC_ROOT
 install -s binaries/system/pyrogenesis -Dt $APPDIR/usr/bin
@@ -113,6 +132,6 @@ $TOOLS_DIR/squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad.desktop \
   --output appimage \
   --plugin gtk
 DATE_STR=$(date +%y%m%d%H%M)
-mv 0_A.D.-$VERSION-$ARCH.AppImage $NAME-$VERSION-$DATE_STR-$ARCH.AppImage
+mv 0_A.D.-$VERSION-$ARCH.AppImage 0ad-$VERSION-$DATE_STR-$ARCH.AppImage
 echo "Generating sha1sum..."
-sha1sum $NAME-$VERSION-$DATE_STR-$ARCH.AppImage > $NAME-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
+sha1sum 0ad-$VERSION-$DATE_STR-$ARCH.AppImage > 0ad-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum

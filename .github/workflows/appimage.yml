@@ -21,24 +21,23 @@ jobs:
     # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
     # Docker Hub image that `container-job` executes in
-    container: andy5995/0ad-build-appimage:testing
+    container: andy5995/0ad-build-env:bionic
     env:
       VERSION: 0.0.26-alpha
-      NAME: 0ad
       ARCH: x86_64
       WORKSPACE: ${{ github.workspace }}
     steps:
     - uses: actions/checkout@v3
-    - run: ./workflow.sh
+    - run: $WORKSPACE/workflow.sh
 
     - name: Release AppImage
       if: ${{ github.ref == 'refs/heads/trunk' }}
       uses: ncipollo/release-action@v1
       with:
-        name: ${{ env.NAME }}-${{ env.VERSION }} AppImage
+        name: 0ad-${{ env.VERSION }} AppImage
         allowUpdates: True
         prerelease: False
-        artifacts: "${{ env.WORKSPACE }}/${{ env.NAME }}*.AppImage*"
+        artifacts: "${{ env.WORKSPACE }}/0ad*.AppImage*"
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: False
         omitBodyDuringUpdate: False
@@ -49,7 +48,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: AppImage
-        path: ${{ env.WORKSPACE }}/${{ env.NAME }}*.AppImage*
+        path: ${{ env.WORKSPACE }}/0ad*.AppImage*
 
 
 
