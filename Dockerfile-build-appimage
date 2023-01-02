@@ -22,10 +22,8 @@ RUN chmod +x linuxdeploy-plugin-gtk.sh
 FROM andy5995/0ad-build-env:bionic
 ENV TOOLS_DIR="/tools"
 ENV BUILD_DIR="/build"
-# key for a26
-ENV MINISIGN_KEY=RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
-# key for a25
-# MINISIGN_KEY=RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+ENV MINISIGN_VERSION="0.10"
+ENV MINISIGN_PATH="$TOOLS_DIR/minisign-$MINISIGN_VERSION-linux/x86_64/minisign"
 
 COPY ./workflow.sh .
 ENTRYPOINT ["/workflow.sh"]

@@ -1,6 +1,13 @@
 #!/bin/bash
 set -ev
 
+URI=https://releases.wildfiregames.com
+
+# key for a26
+MINISIGN_KEY=RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
+# key for a25
+# MINISIGN_KEY=RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+
 if [ -z "$WORKSPACE" ]; then
   echo "WORKSPACE must be set"
   exit 1
@@ -13,20 +20,16 @@ fi
 
 # Get, check, and extract source
 source=$NAME-$VERSION-unix-build.tar.xz
-source_uri=$URI/$source
 source_sum=$source.sha1sum
-source_sum_uri=$URI/$source_sum
-source_minisig=$source.minisig
-source_minisig_uri=$URI/$source_minisig
 
 for file in $source $source_sum; do
   if [ ! -e $file ]; then
-    wget -nv $file
+    wget -nv $URI/$file
   fi
 done
 
 if [ -n "${URI##*/rc*}" ]; then
-  wget -nc $source_minisig_uri
+  wget -nc $URI/$source.minisig
   $MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
 fi
 
@@ -44,18 +47,16 @@ su 0ad --command "./update-workspaces.sh \
 cd $WORKSPACE
 # Get, check, and extract data
 data=$NAME-$VERSION-unix-data.tar.xz
-data_uri=$URI/$data
 data_sum=$data.sha1sum
-data_sum_uri=$URI/$data_sum
 echo "Getting data and extracting archive..."
-for file in $data_uri $data_sum_uri; do
+for file in $data $data_sum; do
   if [ ! -e $file ]; then
-    wget -nv $file
+    wget -nv $URI/$file
   fi
 done
 
 if [ -n "${URI##*/rc*}" ]; then
-  wget -nv $URI/$NAME-$VERSION-unix-data.tar.xz.minisig
+  wget -nc $URI/$data.minisig
 fi
 
 $MINISIGN_PATH -Vm $data -P $MINISIGN_KEY

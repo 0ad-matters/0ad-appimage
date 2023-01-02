@@ -38,7 +38,7 @@ jobs:
         name: ${{ env.NAME }}-${{ env.VERSION }} AppImage
         allowUpdates: True
         prerelease: False
-        artifacts: "${{ env.ABS_PATH_WORK_DIR }}/${{ env.NAME }}*.AppImage*"
+        artifacts: "${{ env.env.WORKSPACE }}/${{ env.NAME }}*.AppImage*"
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: False
         omitBodyDuringUpdate: False
@@ -49,7 +49,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: AppImage
-        path: ${{ env.ABS_PATH_WORK_DIR }}/${{ env.NAME }}*.AppImage*
+        path: ${{ env.WORKSPACE }}/${{ env.NAME }}*.AppImage*
 
 
 

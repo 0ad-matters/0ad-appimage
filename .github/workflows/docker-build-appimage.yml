@@ -8,14 +8,14 @@ on:
     paths:
       - '.github/workflows/docker-build-appimage.yml'
       - 'Dockerfile-build-appimage'
-      - 'workflow.sh'
+      #- 'workflow.sh'
   pull_request:
     branches:
       - 'trunk'
     paths:
       - '.github/workflows/docker-build-appimage.yml'
       - 'Dockerfile-build-appimage'
-      - 'workflow.sh'
+      #- 'workflow.sh'
 
 jobs:
   build:
