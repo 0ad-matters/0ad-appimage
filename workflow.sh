@@ -11,24 +11,34 @@ if [ ! -e "AppRun" ]; then
   exit 1
 fi
 
-ARCH=x86_64
 MINISIGN_VERSION="0.10"
-TOOLS_DIR="/tools"
+TOOLS_DIR="$WORKSPACE/tools"
 MINISIGN_PATH="$TOOLS_DIR/minisign-$MINISIGN_VERSION-linux/x86_64/minisign"
 URI=https://releases.wildfiregames.com
 
+# key for a26
+MINISIGN_KEY=RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
+# key for a25
+# MINISIGN_KEY=RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
+
 mkdir -m 777 -p $TOOLS_DIR
 cd $TOOLS_DIR
-wget -nv https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-chmod +x linuxdeploy-$ARCH.AppImage
-./linuxdeploy-$ARCH.AppImage --appimage-extract
+if [ ! -r "linuxdeploy-$ARCH.AppImage" ]; then
+  wget -nv https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+  chmod +x linuxdeploy-$ARCH.AppImage
+  ./linuxdeploy-$ARCH.AppImage --appimage-extract
+fi
 
-wget -nv https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
-chmod +x linuxdeploy-plugin-gtk.sh
+if [ ! -r linuxdeploy-plugin-gtk.sh ]; then
+  wget -nv https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
+  chmod +x linuxdeploy-plugin-gtk.sh
+fi
 
-wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz
-wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz.minisig
-tar xf minisign-$MINISIGN_VERSION-linux.tar.gz
+if [ ! -r minisign-${MINISIGN_VERSION}-linux.tar.gz ]; then
+  wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz
+  wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz.minisig
+  tar xf minisign-$MINISIGN_VERSION-linux.tar.gz
+fi
 $MINISIGN_PATH -Vm minisign-$MINISIGN_VERSION-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
 
 # key for a26
@@ -71,8 +81,8 @@ data=0ad-$VERSION-unix-data.tar.xz
 data_sum=$data.sha1sum
 echo "Getting data and extracting archive..."
 for file in $data $data_sum; do
-  if [ ! -r $file ]; then
-    wget -nv $URI/$file
+  if [ ! -r "$file" ]; then
+    wget -nv "$URI/$file"
   fi
 done
 
@@ -120,7 +130,7 @@ cp -a binaries/data/tools $APPDIR/usr/data # for Atlas
 cp -a binaries/data/mods $APPDIR/usr/data
 # Create the image
 cd $WORKSPACE
-mv $TOOLS_DIR/linuxdeploy-plugin-gtk.sh .
+cp $TOOLS_DIR/linuxdeploy-plugin-gtk.sh .
 DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
 $TOOLS_DIR/squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad.desktop \
   --icon-file=$APPDIR/usr/share/pixmaps/0ad.png \

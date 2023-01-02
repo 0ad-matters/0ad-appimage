@@ -27,6 +27,6 @@ repo root, run:
 
     ./make-appimage.sh
 
-To speed up the process, prior to running the above script, copy (or symlink)
-the source and data archives (e.g., 0ad-0.0.26-alpha-unix-{build,data}.tar.xz)
-to the repo root (otherwise they'll be downloaded during the script execution).
+To speed up the process, prior to running the above script, copy the source
+and data archives (e.g., 0ad-0.0.26-alpha-unix-{build,data}.tar.xz) to the
+repo root (otherwise they'll be downloaded during the script execution).
