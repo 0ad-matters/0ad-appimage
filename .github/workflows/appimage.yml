@@ -26,7 +26,10 @@ jobs:
       VERSION: 0.0.26-alpha
       NAME: 0ad
       ARCH: x86_64
-      WORKSPACE: ${{ github.workspace }}/0ad
+      WORKSPACE: ${{ github.workspace }}
+    steps:
+    - uses: actions/checkout@v3
+    - run: ./workflow.sh
 
     - name: Release AppImage
       if: ${{ github.ref == 'refs/heads/trunk' }}
