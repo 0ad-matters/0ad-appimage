@@ -38,7 +38,7 @@ jobs:
         name: ${{ env.NAME }}-${{ env.VERSION }} AppImage
         allowUpdates: True
         prerelease: False
-        artifacts: "${{ env.env.WORKSPACE }}/${{ env.NAME }}*.AppImage*"
+        artifacts: "${{ env.WORKSPACE }}/${{ env.NAME }}*.AppImage*"
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: False
         omitBodyDuringUpdate: False
