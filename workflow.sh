@@ -12,26 +12,25 @@ if [ ! -e "AppRun" ]; then
 fi
 
 MINISIGN_VERSION="0.10"
-TOOLS_DIR="$WORKSPACE/tools"
+TOOLS_DIR="/tools"
 MINISIGN_PATH="$TOOLS_DIR/minisign-$MINISIGN_VERSION-linux/x86_64/minisign"
 URI=https://releases.wildfiregames.com
 
+# 0ad signing keys
 # key for a26
 MINISIGN_KEY=RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
 # key for a25
 # MINISIGN_KEY=RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
 
+linux_deploy_version="1-alpha-20220822-1"
+
 mkdir -m 777 -p $TOOLS_DIR
-cd $TOOLS_DIR
+cd "$TOOLS_DIR"
+
 if [ ! -r "linuxdeploy-$ARCH.AppImage" ]; then
-  wget -nv https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+  wget -nv https://github.com/linuxdeploy/linuxdeploy/releases/download/$linux_deploy_version/linuxdeploy-$ARCH.AppImage
   chmod +x linuxdeploy-$ARCH.AppImage
   ./linuxdeploy-$ARCH.AppImage --appimage-extract
-fi
-
-if [ ! -r linuxdeploy-plugin-gtk.sh ]; then
-  wget -nv https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
-  chmod +x linuxdeploy-plugin-gtk.sh
 fi
 
 if [ ! -r minisign-${MINISIGN_VERSION}-linux.tar.gz ]; then
@@ -41,12 +40,16 @@ if [ ! -r minisign-${MINISIGN_VERSION}-linux.tar.gz ]; then
 fi
 $MINISIGN_PATH -Vm minisign-$MINISIGN_VERSION-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
 
-# key for a26
-MINISIGN_KEY=RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
-# key for a25
-# MINISIGN_KEY=RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
-
 cd "$WORKSPACE"
+
+# The gtk plugin is placed in this directory because this is where linuxdeploy
+# is run from later to create the AppImage. In this location, the plugin will
+# be visible to linuxdeploy when the AppImage is created
+if [ ! -r linuxdeploy-plugin-gtk.sh ]; then
+  wget -nv https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
+  chmod +x linuxdeploy-plugin-gtk.sh
+fi
+
 # Get, check, and extract source
 source=0ad-$VERSION-unix-build.tar.xz
 source_sum=$source.sha1sum
@@ -129,8 +132,8 @@ cp -a binaries/data/l10n $APPDIR/usr/data
 cp -a binaries/data/tools $APPDIR/usr/data # for Atlas
 cp -a binaries/data/mods $APPDIR/usr/data
 # Create the image
-cd $WORKSPACE
-cp $TOOLS_DIR/linuxdeploy-plugin-gtk.sh .
+cd "$WORKSPACE"
+
 DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
 $TOOLS_DIR/squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad.desktop \
   --icon-file=$APPDIR/usr/share/pixmaps/0ad.png \
@@ -145,3 +148,5 @@ DATE_STR=$(date +%y%m%d%H%M)
 mv 0_A.D.-$VERSION-$ARCH.AppImage 0ad-$VERSION-$DATE_STR-$ARCH.AppImage
 echo "Generating sha1sum..."
 sha1sum 0ad-$VERSION-$DATE_STR-$ARCH.AppImage > 0ad-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
+
+exit 0
