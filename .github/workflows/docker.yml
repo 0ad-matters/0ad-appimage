@@ -1,7 +1,14 @@
 name: Docker Image
 
 on:
+  workflow_dispatch:
   push:
+    branches:
+      - 'trunk'
+    paths:
+      - '.github/workflows/docker.yml'
+      - 'Dockerfile'
+  pull_request:
     branches:
       - 'trunk'
     paths:
@@ -25,7 +32,18 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       -
+        name: Build and push test
+        if: ${{ github.ref != 'refs/heads/trunk' }}
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:testing
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:buildcache,mode=max
+      -
         name: Build and push
+        if: ${{ github.ref == 'refs/heads/trunk' }}
         uses: docker/build-push-action@v3
         with:
           context: .
