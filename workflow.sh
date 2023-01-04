@@ -1,6 +1,11 @@
 #!/bin/bash
 set -ev
 
+if [ -z "$VERSION" ]; then
+  echo "VERSION must be set."
+  exit 1
+fi
+
 if [ -z "$WORKSPACE" ]; then
   echo "WORKSPACE must be set."
   exit 1

@@ -3,7 +3,7 @@
 export WORKSPACE="/0ad"
 
 docker run -it --rm \
-  -e VERSION=0.0.26-alpha  \
+  -e VERSION=$(cat version)  \
   -e ARCH=x86_64 \
   -e WORKSPACE \
   -v $PWD:$WORKSPACE \
