@@ -33,16 +33,16 @@ mkdir -m 777 -p $TOOLS_DIR
 cd "$TOOLS_DIR"
 
 if [ ! -r "linuxdeploy-$ARCH.AppImage" ]; then
-  wget -nv https://github.com/linuxdeploy/linuxdeploy/releases/download/$linux_deploy_version/linuxdeploy-$ARCH.AppImage
+  curl -LO https://github.com/linuxdeploy/linuxdeploy/releases/download/$linux_deploy_version/linuxdeploy-$ARCH.AppImage
   chmod +x linuxdeploy-$ARCH.AppImage
   ./linuxdeploy-$ARCH.AppImage --appimage-extract
 fi
 
 if [ ! -r minisign-${MINISIGN_VERSION}-linux.tar.gz ]; then
-  wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz
-  wget -nv https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz.minisig
-  tar xf minisign-$MINISIGN_VERSION-linux.tar.gz
+  curl -LO https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz
+  curl -LO https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz.minisig
 fi
+tar xf minisign-$MINISIGN_VERSION-linux.tar.gz
 $MINISIGN_PATH -Vm minisign-$MINISIGN_VERSION-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
 
 cd "$WORKSPACE"
@@ -51,7 +51,7 @@ cd "$WORKSPACE"
 # is run from later to create the AppImage. In this location, the plugin will
 # be visible to linuxdeploy when the AppImage is created
 if [ ! -r linuxdeploy-plugin-gtk.sh ]; then
-  wget -nv https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
+  curl -LO https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
   chmod +x linuxdeploy-plugin-gtk.sh
 fi
 
@@ -61,12 +61,14 @@ source_sum=$source.sha1sum
 
 for file in $source $source_sum; do
   if [ ! -r "$file" ]; then
-    wget -nv "$URI/$file"
+    curl -LO "$URI/$file"
   fi
 done
 
 if [ -n "${URI##*/rc*}" ]; then
-  wget -nc $URI/$source.minisig
+  if [ ! -r $URI/$source.minisig ]; then
+    curl -LO $URI/$source.minisig
+  fi
   $MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
 fi
 sha1sum -c $source_sum
@@ -90,12 +92,12 @@ data_sum=$data.sha1sum
 echo "Getting data and extracting archive..."
 for file in $data $data_sum; do
   if [ ! -r "$file" ]; then
-    wget -nv "$URI/$file"
+    curl -LO "$URI/$file"
   fi
 done
 
-if [ -n "${URI##*/rc*}" ]; then
-  wget -nc $URI/$data.minisig
+if [ -n "${URI##*/rc*}" ] && [ ! -r $URI/$data.minisig ]; then
+    curl -LO $URI/$data.minisig
 fi
 
 $MINISIGN_PATH -Vm $data -P $MINISIGN_KEY
@@ -153,5 +155,11 @@ DATE_STR=$(date +%y%m%d%H%M)
 mv 0_A.D.-$VERSION-$ARCH.AppImage 0ad-$VERSION-$DATE_STR-$ARCH.AppImage
 echo "Generating sha1sum..."
 sha1sum 0ad-$VERSION-$DATE_STR-$ARCH.AppImage > 0ad-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
+
+if [ -n "$HOSTUSER" ]; then
+  for file in 0ad*AppImage 0ad*.xz 0ad*.minisig  0ad*.sha1sum linuxdeploy-plugin-gtk.sh; do
+    chown $HOSTUSER "$file"
+  done
+fi
 
 exit 0
