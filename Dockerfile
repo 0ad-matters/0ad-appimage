@@ -33,6 +33,7 @@ RUN apt update &&   \
         rustc   \
         zlib1g-dev &&  \
     apt install -y  \
+        curl    \
         patchelf    \
         wget && \
     rm -rf /var/lib/apt/lists
