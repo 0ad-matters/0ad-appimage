@@ -19,3 +19,14 @@ if desired:
 
     ln -s <Appimage-File> 0ad
     ln -s <Appimage-File> pyrogenesis
+
+## Build locally
+
+You can build the appimage locally if you have docker installed. While in the
+repo root, run:
+
+    ./make-appimage.sh
+
+To speed up the process, prior to running the above script, copy the source
+and data archives (e.g., 0ad-0.0.26-alpha-unix-{build,data}.tar.xz) to the
+repo root (otherwise they'll be downloaded during the script execution).
