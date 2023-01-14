@@ -27,6 +27,7 @@ RUN apt update &&   \
         libsdl2-dev \
         libsodium-dev   \
         libvorbis-dev \
+        libvulkan-dev   \
         libwxgtk3.0-gtk3-dev \
         libxml2-dev \
         m4 \
