@@ -55,54 +55,70 @@ if [ ! -r linuxdeploy-plugin-gtk.sh ]; then
   chmod +x linuxdeploy-plugin-gtk.sh
 fi
 
-# Get, check, and extract source
-source=0ad-$VERSION-unix-build.tar.xz
-source_sum=$source.sha1sum
-
-for file in $source $source_sum; do
-  if [ ! -r "$file" ]; then
-    curl -LO "$URI/$file"
-  fi
-done
-
-if [ -n "${URI##*/rc*}" ]; then
-  if [ ! -r $URI/$source.minisig ]; then
-    curl -LO $URI/$source.minisig
-  fi
-  $MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
-fi
-sha1sum -c $source_sum
-
 BUILD_DIR="/build"
 mkdir -m 777 -p $BUILD_DIR
-cd $BUILD_DIR
-su 0ad --command "tar xJf $WORKSPACE/$source"
+
+if [ "$VERSION" != "0.0.27-vulkan-experimental" ]; then
+  # Get, check, and extract source
+  source=0ad-$VERSION-unix-build.tar.xz
+  source_sum=$source.sha1sum
+
+  for file in $source $source_sum; do
+    if [ ! -r "$file" ]; then
+      curl -LO "$URI/$file"
+    fi
+  done
+
+  if [ -n "${URI##*/rc*}" ]; then
+    if [ ! -r $URI/$source.minisig ]; then
+      curl -LO $URI/$source.minisig
+    fi
+    $MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
+  fi
+  sha1sum -c $source_sum
+  su 0ad --command "tar xJf $WORKSPACE/$source -C $BUILD_DIR"
+else
+  if [ ! -r "master.zip" ]; then
+    curl -s -LO https://github.com/0ad/0ad/archive/refs/heads/master.zip
+  else
+    su 0ad --command "unzip master.zip -d $BUILD_DIR/0ad-$VERSION"
+  fi
+fi
 
 # name: build
-cd 0ad-$VERSION/build/workspaces
+cd $BUILD_DIR/0ad-$VERSION/build/workspaces
 su 0ad --command "./update-workspaces.sh \
   -j$(nproc) && \
   make config=release -C gcc -j$(nproc)"
 
 # name: prepare AppDir
 cd $WORKSPACE
-# Get, check, and extract data
-data=0ad-$VERSION-unix-data.tar.xz
-data_sum=$data.sha1sum
-echo "Getting data and extracting archive..."
-for file in $data $data_sum; do
-  if [ ! -r "$file" ]; then
-    curl -LO "$URI/$file"
+if [ "$VERSION" != "0.0.27-vulkan-experimental" ]; then
+  # Get, check, and extract data
+  data=0ad-$VERSION-unix-data.tar.xz
+  data_sum=$data.sha1sum
+  echo "Getting data and extracting archive..."
+  for file in $data $data_sum; do
+    if [ ! -r "$file" ]; then
+      curl -LO "$URI/$file"
+    fi
+  done
+
+  if [ -n "${URI##*/rc*}" ] && [ ! -r $URI/$data.minisig ]; then
+      curl -LO $URI/$data.minisig
   fi
-done
 
-if [ -n "${URI##*/rc*}" ] && [ ! -r $URI/$data.minisig ]; then
-    curl -LO $URI/$data.minisig
+  $MINISIGN_PATH -Vm $data -P $MINISIGN_KEY
+  sha1sum -c $data_sum
+  su 0ad --command "tar xJf $data -C $BUILD_DIR"
+else
+  cd "$WORKSPACE"
+  if [ ! -r 0ad-spirv.zip ]; then
+    # see https://wildfiregames.com/forum/topic/104382-vulkan-new-graphics-api/
+    curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip
+    # Later this will get extracted directly into the AppDir
+  fi
 fi
-
-$MINISIGN_PATH -Vm $data -P $MINISIGN_KEY
-sha1sum -c $data_sum
-su 0ad --command "tar xJf $data -C $BUILD_DIR"
 
 ABS_PATH_SRC_ROOT="$BUILD_DIR/0ad-$VERSION"
 if [ ! -r "$ABS_PATH_SRC_ROOT/source/main.cpp" ]; then
@@ -138,6 +154,9 @@ cp -a binaries/data/config/default.cfg $APPDIR/usr/data/config
 cp -a binaries/data/l10n $APPDIR/usr/data
 cp -a binaries/data/tools $APPDIR/usr/data # for Atlas
 cp -a binaries/data/mods $APPDIR/usr/data
+if [ "$VERSION" = "0.0.27-vulkan-experimental" ]; then
+  unzip "$WORKSPACE/0ad-spirv.zip" -d $APPDIR/usr/data/mods
+fi
 # Create the image
 cd "$WORKSPACE"
 
