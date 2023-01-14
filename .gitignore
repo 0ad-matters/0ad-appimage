@@ -2,3 +2,4 @@
 /tools/
 /linuxdeploy-plugin-gtk.sh
 /*.AppImage*
+/0ad-svn
