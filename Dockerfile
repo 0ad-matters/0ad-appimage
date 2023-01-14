@@ -29,6 +29,7 @@ RUN apt update &&   \
         libvorbis-dev \
         libwxgtk3.0-gtk3-dev \
         libxml2-dev \
+        m4 \
         python3 \
         subversion \
         rustc   \
