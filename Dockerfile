@@ -30,6 +30,7 @@ RUN apt update &&   \
         libwxgtk3.0-gtk3-dev \
         libxml2-dev \
         python3 \
+        subversion \
         rustc   \
         zlib1g-dev &&  \
     apt install -y  \
@@ -39,3 +40,5 @@ RUN apt update &&   \
     rm -rf /var/lib/apt/lists
 
 RUN useradd -M -U 0ad && passwd -d 0ad
+
+CMD ["/bin/bash","-l"]
