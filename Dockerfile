@@ -19,7 +19,8 @@ RUN apt update &&   \
         libenet-dev \
         libfmt-dev   \
         libfreetype6-dev    \
-        libgloox-dev libicu-dev \
+        libgloox-dev    \
+        libicu-dev \
         libminiupnpc-dev \
         libogg-dev  \
         libopenal-dev   \
@@ -41,6 +42,18 @@ RUN apt update &&   \
         wget && \
     rm -rf /var/lib/apt/lists
 
-RUN useradd -M -U 0ad && passwd -d 0ad
+linux_deploy_version="1-alpha-20220822-1"
 
+ENV TOOLS_DIR="/tools"
+RUN mkdir -m 777 -p $TOOLS_DIR
+
+RUN /bin/bash -c 'cd $TOOLS_DIR \
+    && curl -LO https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20220822-1/linuxdeploy-x86_64.AppImage \
+    && chmod +x linuxdeploy-x86_64.AppImage \
+    && ./linuxdeploy-x86_64.AppImage --appimage-extract \
+    && rm ./linuxdeploy-x86_64.AppImage \
+    && cd -'
+
+RUN useradd -M -U 0ad && passwd -d 0ad
+ENV DOCKER_0AD_BUILD=TRUE
 CMD ["/bin/bash","-l"]
