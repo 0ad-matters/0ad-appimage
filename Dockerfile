@@ -42,8 +42,6 @@ RUN apt update &&   \
         wget && \
     rm -rf /var/lib/apt/lists
 
-linux_deploy_version="1-alpha-20220822-1"
-
 ENV TOOLS_DIR="/tools"
 RUN mkdir -m 777 -p $TOOLS_DIR
 
