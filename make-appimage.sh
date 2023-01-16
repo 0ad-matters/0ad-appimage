@@ -3,6 +3,7 @@
 export WORKSPACE="/0ad"
 
 docker run -it --rm \
+  -u 0ad \
   -e VERSION=$(cat version)  \
   -e ARCH=x86_64 \
   -e WORKSPACE \
