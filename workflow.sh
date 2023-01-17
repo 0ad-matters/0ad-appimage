@@ -1,6 +1,15 @@
 #!/bin/bash
 set -ev
 
+export {CC=gcc-8,CXX=g++-8}
+
+# This var is set in the the docker container
+if [ -z "DOCKER_0AD_BUILD" ]; then
+  @echo "This script is intended to be run inside a docker container."
+  @echo "(hint: andy5995/0ad-build-env:bionic)"
+  exit 1
+fi
+
 if [ -z "$VERSION" ]; then
   echo "VERSION must be set."
   exit 1
@@ -17,9 +26,31 @@ if [ ! -e "AppRun" ]; then
 fi
 
 MINISIGN_VERSION="0.10"
-TOOLS_DIR="/tools"
+
+if [ -z "$TOOLS_DIR" ];
+  then TOOLS_DIR="/tools"
+fi
+
+if [ ! -d "$TOOLS_DIR" ]; then
+  mkdir -v -p "$TOOLS_DIR"
+fi
+
 MINISIGN_PATH="$TOOLS_DIR/minisign-$MINISIGN_VERSION-linux/x86_64/minisign"
 URI=https://releases.wildfiregames.com
+
+BUILD_DIR="$WORKSPACE/build"
+if [ -d "$BUILD_DIR" ]; then
+  rm -rf "$BUILD_DIR"
+fi
+mkdir -v -p $BUILD_DIR
+
+if [ "$VERSION" != "0.0.27-svn-unstable" ]; then
+  ABS_PATH_SRC_ROOT="$WORKSPACE/0ad-$VERSION"
+else
+  ABS_PATH_SRC_ROOT="$WORKSPACE/0ad-svn"
+fi
+
+export -p
 
 # 0ad signing keys
 # key for a26
@@ -27,22 +58,11 @@ MINISIGN_KEY=RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
 # key for a25
 # MINISIGN_KEY=RWT0hFWv57I2RFoJwLVjxEr44JOq/RkEx1oT0IA3PPPICnSF7HFKW1CT
 
-linux_deploy_version="1-alpha-20220822-1"
-
-mkdir -m 777 -p $TOOLS_DIR
-cd "$TOOLS_DIR"
-
-if [ ! -r "linuxdeploy-$ARCH.AppImage" ]; then
-  curl -LO https://github.com/linuxdeploy/linuxdeploy/releases/download/$linux_deploy_version/linuxdeploy-$ARCH.AppImage
-  chmod +x linuxdeploy-$ARCH.AppImage
-  ./linuxdeploy-$ARCH.AppImage --appimage-extract
-fi
-
 if [ ! -r minisign-${MINISIGN_VERSION}-linux.tar.gz ]; then
   curl -LO https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz
   curl -LO https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz.minisig
 fi
-tar xf minisign-$MINISIGN_VERSION-linux.tar.gz
+tar xf minisign-$MINISIGN_VERSION-linux.tar.gz -C "$TOOLS_DIR"
 $MINISIGN_PATH -Vm minisign-$MINISIGN_VERSION-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
 
 cd "$WORKSPACE"
@@ -55,59 +75,78 @@ if [ ! -r linuxdeploy-plugin-gtk.sh ]; then
   chmod +x linuxdeploy-plugin-gtk.sh
 fi
 
-# Get, check, and extract source
-source=0ad-$VERSION-unix-build.tar.xz
-source_sum=$source.sha1sum
-
-for file in $source $source_sum; do
-  if [ ! -r "$file" ]; then
-    curl -LO "$URI/$file"
-  fi
-done
-
-if [ -n "${URI##*/rc*}" ]; then
-  if [ ! -r $URI/$source.minisig ]; then
-    curl -LO $URI/$source.minisig
-  fi
-  $MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
+if [ "$USER" != "0ad" -]; then
+  run_cmd="su 0ad --command"
+else
+  run_cmd="/bin/bash -c"
 fi
-sha1sum -c $source_sum
 
-BUILD_DIR="/build"
-mkdir -m 777 -p $BUILD_DIR
-cd $BUILD_DIR
-su 0ad --command "tar xJf $WORKSPACE/$source"
+if [ "$VERSION" != "0.0.27-svn-unstable" ]; then
+  # Get, check, and extract source
+  source=0ad-$VERSION-unix-build.tar.xz
+  source_sum=$source.sha1sum
+
+  for file in $source $source_sum; do
+    if [ ! -r "$file" ]; then
+      curl -LO "$URI/$file"
+    fi
+  done
+
+  if [ -n "${URI##*/rc*}" ]; then
+    if [ ! -r $URI/$source.minisig ]; then
+      curl -LO $URI/$source.minisig
+    fi
+    $MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
+  fi
+  sha1sum -c $source_sum
+  $run_cmd "tar xJf $WORKSPACE/$source"
+else
+  if [ ! -r "0ad-svn" ]; then
+    svn co https://svn.wildfiregames.com/public/ps/trunk/ 0ad-svn
+  else
+    cd 0ad-svn
+    svn up
+  fi
+fi
 
 # name: build
-cd 0ad-$VERSION/build/workspaces
-su 0ad --command "./update-workspaces.sh \
-  -j$(nproc) && \
+if [ ! -r "$ABS_PATH_SRC_ROOT/source/main.cpp" ]; then
+  echo "set the source root!"
+  exit 1
+fi
+cd "$ABS_PATH_SRC_ROOT/build/workspaces"
+
+$run_cmd "ionice -c3 nice -n 19 \
+  ./update-workspaces.sh \
+    -j$(nproc) && \
   make config=release -C gcc -j$(nproc)"
 
 # name: prepare AppDir
 cd $WORKSPACE
-# Get, check, and extract data
-data=0ad-$VERSION-unix-data.tar.xz
-data_sum=$data.sha1sum
-echo "Getting data and extracting archive..."
-for file in $data $data_sum; do
-  if [ ! -r "$file" ]; then
-    curl -LO "$URI/$file"
+if [ "$VERSION" != "0.0.27-svn-unstable" ]; then
+  # Get, check, and extract data
+  data=0ad-$VERSION-unix-data.tar.xz
+  data_sum=$data.sha1sum
+  echo "Getting data and extracting archive..."
+  for file in $data $data_sum; do
+    if [ ! -r "$file" ]; then
+      curl -LO "$URI/$file"
+    fi
+  done
+
+  if [ -n "${URI##*/rc*}" ] && [ ! -r $URI/$data.minisig ]; then
+      curl -LO $URI/$data.minisig
   fi
-done
 
-if [ -n "${URI##*/rc*}" ] && [ ! -r $URI/$data.minisig ]; then
-    curl -LO $URI/$data.minisig
-fi
-
-$MINISIGN_PATH -Vm $data -P $MINISIGN_KEY
-sha1sum -c $data_sum
-su 0ad --command "tar xJf $data -C $BUILD_DIR"
-
-ABS_PATH_SRC_ROOT="$BUILD_DIR/0ad-$VERSION"
-if [ ! -r "$ABS_PATH_SRC_ROOT/source/main.cpp" ]; then
-  echo "set the source root!"
-  exit 1
+  $MINISIGN_PATH -Vm $data -P $MINISIGN_KEY
+  sha1sum -c $data_sum
+  $run_cmd "tar xJf $data"
+else
+  if [ ! -r 0ad-spirv.zip ]; then
+    # see https://wildfiregames.com/forum/topic/104382-vulkan-new-graphics-api/
+    curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip
+    # Later this will get extracted directly into the AppDir
+  fi
 fi
 
 APPDIR="$BUILD_DIR/AppDir"
@@ -137,12 +176,26 @@ mkdir -p "$APPDIR/usr/data/config"
 cp -a binaries/data/config/default.cfg $APPDIR/usr/data/config
 cp -a binaries/data/l10n $APPDIR/usr/data
 cp -a binaries/data/tools $APPDIR/usr/data # for Atlas
-cp -a binaries/data/mods $APPDIR/usr/data
+mkdir -p $APPDIR/usr/data/mods
+cp -a binaries/data/mods/mod $APPDIR/usr/data/mods
+if [ "$VERSION" = "0.0.27-svn-unstable" ]; then
+  mkdir -p $APPDIR/usr/data/mods/public
+  $run_cmd "binaries/system/pyrogenesis -writableRoot  \
+    -mod=mod   \
+    -archivebuild=binaries/data/mods/public  \
+    -archivebuild-output=$APPDIR/usr/data/mods/public/public.zip    \
+    -archivebuild-compress" \
+    && test -f "$APPDIR/usr/data/mods/public/public.zip"
+  cp -a binaries/data/mods/public/mod.json $APPDIR/usr/data/mods/public
+  unzip "$WORKSPACE/0ad-spirv.zip" -d $APPDIR/usr/data/mods/0ad-spirv
+else
+  cp -a binaries/data/mods/public $APPDIR/usr/data/mods
+fi
 # Create the image
 cd "$WORKSPACE"
 
 DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
-$TOOLS_DIR/squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad.desktop \
+ionice -c3 $TOOLS_DIR/squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad.desktop \
   --icon-file=$APPDIR/usr/share/pixmaps/0ad.png \
   --icon-filename=0ad \
   --executable $APPDIR/usr/bin/pyrogenesis \
@@ -156,10 +209,12 @@ mv 0_A.D.-$VERSION-$ARCH.AppImage 0ad-$VERSION-$DATE_STR-$ARCH.AppImage
 echo "Generating sha1sum..."
 sha1sum 0ad-$VERSION-$DATE_STR-$ARCH.AppImage > 0ad-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
 
-if [ -n "$HOSTUSER" ]; then
-  for file in 0ad*AppImage 0ad*.xz 0ad*.minisig  0ad*.sha1sum linuxdeploy-plugin-gtk.sh; do
-    chown $HOSTUSER "$file"
-  done
-fi
+# This doesn't work because there is probably no such
+# user inside the container.
+#if [ -n "$HOSTUSER" ]; then
+  #for file in 0ad*AppImage 0ad*.xz 0ad*.minisig  0ad*.sha1sum linuxdeploy-plugin-gtk.sh; do
+    #chown $HOSTUSER "$file"
+  #done
+#fi
 
 exit 0

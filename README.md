@@ -23,10 +23,17 @@ if desired:
 ## Build locally
 
 You can build the appimage locally if you have docker installed. While in the
-repo root, run:
+repo root, to build the latest stable version, run:
 
     ./make-appimage.sh
+
+or to build an svn snapshot:
+
+    VERSION=0.0.27-svn-unstable ./make-appimage.sh
 
 To speed up the process, prior to running the above script, copy the source
 and data archives (e.g., 0ad-0.0.26-alpha-unix-{build,data}.tar.xz) to the
 repo root (otherwise they'll be downloaded during the script execution).
+
+If choosing the svn version, the svn repository will be checked out, unless
+you aleady have it in the repo root.
