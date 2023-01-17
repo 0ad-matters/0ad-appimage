@@ -176,9 +176,20 @@ mkdir -p "$APPDIR/usr/data/config"
 cp -a binaries/data/config/default.cfg $APPDIR/usr/data/config
 cp -a binaries/data/l10n $APPDIR/usr/data
 cp -a binaries/data/tools $APPDIR/usr/data # for Atlas
-cp -a binaries/data/mods $APPDIR/usr/data
+mkdir -p $APPDIR/usr/data/mods
+cp -a binaries/data/mods/mod $APPDIR/usr/data/mods
 if [ "$VERSION" = "0.0.27-svn-unstable" ]; then
+  mkdir -p $APPDIR/usr/data/mods/public
+  $run_cmd "binaries/system/pyrogenesis -writableRoot  \
+    -mod=mod   \
+    -archivebuild=binaries/data/mods/public  \
+    -archivebuild-output=$APPDIR/usr/data/mods/public/public.zip    \
+    -archivebuild-compress" \
+    && test -f "$APPDIR/usr/data/mods/public/public.zip"
+  cp -a binaries/data/mods/public/mod.json $APPDIR/usr/data/mods/public
   unzip "$WORKSPACE/0ad-spirv.zip" -d $APPDIR/usr/data/mods/0ad-spirv
+else
+  cp -a binaries/data/mods/public $APPDIR/usr/data/mods
 fi
 # Create the image
 cd "$WORKSPACE"
