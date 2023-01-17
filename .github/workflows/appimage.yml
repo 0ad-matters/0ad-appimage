@@ -27,17 +27,11 @@ jobs:
     env:
       ARCH: x86_64
       WORKSPACE: ${{ github.workspace }}
+      VERSION: 0.0.27-svn-unstable
     steps:
     - uses: actions/checkout@v3
-    - name: Read version file
-      id: getversion
-      run: echo "version=$(cat $WORKSPACE/version)" >> $GITHUB_OUTPUT
     - name: Run Workflow script
       run: |
-        echo "VERSION=${{ steps.getversion.outputs.version }}" >> $GITHUB_ENV
-        # GIHUB_ENV was already passed when the service container started,
-        # so VERSION still needs to be exported before the script is run
-        export VERSION=${{ steps.getversion.outputs.version }}
         ln -s /0ad-svn
         $WORKSPACE/workflow.sh
 
