@@ -1,4 +1,13 @@
 #!/bin/bash
+
+cmp_substr () {
+  if [ -z "$1" -o -z "$2" ]; then
+    return 1
+  fi
+  [ -z "${1##*$2*}" ]
+  return $?
+}
+
 set -ev
 
 export {CC=gcc-8,CXX=g++-8}
@@ -14,6 +23,9 @@ if [ -z "$VERSION" ]; then
   echo "VERSION must be set."
   exit 1
 fi
+
+svn=1
+cmp_substr "$VERSION" "svn" || svn=0
 
 if [ -z "$WORKSPACE" ]; then
   echo "WORKSPACE must be set."
@@ -44,11 +56,14 @@ if [ -d "$BUILD_DIR" ]; then
 fi
 mkdir -v -p $BUILD_DIR
 
-if [ "$VERSION" != "0.0.27-svn-unstable" ]; then
+if [ $svn -ne 1 ]; then
   ABS_PATH_SRC_ROOT="$WORKSPACE/0ad-$VERSION"
 else
   ABS_PATH_SRC_ROOT="$WORKSPACE/0ad-svn"
 fi
+
+echo $ABS_PATH_SRC_ROOT
+exit 0
 
 export -p
 
@@ -81,7 +96,7 @@ else
   run_cmd="/bin/bash -c"
 fi
 
-if [ "$VERSION" != "0.0.27-svn-unstable" ]; then
+if [ $svn -ne 1 ]; then
   # Get, check, and extract source
   source=0ad-$VERSION-unix-build.tar.xz
   source_sum=$source.sha1sum
@@ -123,7 +138,7 @@ $run_cmd "ionice -c3 nice -n 19 \
 
 # name: prepare AppDir
 cd $WORKSPACE
-if [ "$VERSION" != "0.0.27-svn-unstable" ]; then
+if [ $svn -ne 1 ]; then
   # Get, check, and extract data
   data=0ad-$VERSION-unix-data.tar.xz
   data_sum=$data.sha1sum
@@ -178,7 +193,7 @@ cp -a binaries/data/l10n $APPDIR/usr/data
 cp -a binaries/data/tools $APPDIR/usr/data # for Atlas
 mkdir -p $APPDIR/usr/data/mods
 cp -a binaries/data/mods/mod $APPDIR/usr/data/mods
-if [ "$VERSION" = "0.0.27-svn-unstable" ]; then
+if [ $svn -eq 1 ]; then
   mkdir -p $APPDIR/usr/data/mods/public
   $run_cmd "binaries/system/pyrogenesis -writableRoot  \
     -mod=mod   \
