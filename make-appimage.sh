@@ -14,7 +14,7 @@ read -t 10
 set -ev
 
 docker run -it --rm \
-  -u 0ad \-
+  -u 0ad \
   -e VERSION=$VERSION  \
   -e ARCH=x86_64 \
   -e WORKSPACE \
