@@ -62,9 +62,6 @@ else
   ABS_PATH_SRC_ROOT="$WORKSPACE/0ad-svn"
 fi
 
-echo $ABS_PATH_SRC_ROOT
-exit 0
-
 export -p
 
 # 0ad signing keys
