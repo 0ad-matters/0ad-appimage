@@ -121,6 +121,7 @@ else
   else
     cd 0ad-svn
     svn up
+    VERSION="$VERSION-r$(svn info --show-item revision)"
   fi
 fi
 
