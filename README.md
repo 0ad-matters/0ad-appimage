@@ -31,6 +31,11 @@ or to build an svn snapshot:
 
     VERSION=0.0.27-svn-unstable ./make-appimage.sh
 
+Version strings for stable releases are typically in the format:
+
+    0.0.26-alpha
+    0.0.25b-alpha
+
 To speed up the process, prior to running the above script, copy the source
 and data archives (e.g., 0ad-0.0.26-alpha-unix-{build,data}.tar.xz) to the
 repo root (otherwise they'll be downloaded during the script execution).

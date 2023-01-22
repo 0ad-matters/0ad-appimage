@@ -52,7 +52,7 @@ URI=https://releases.wildfiregames.com
 
 BUILD_DIR="$WORKSPACE/build"
 if [ -d "$BUILD_DIR" ]; then
-  rm -rf "$BUILD_DIR"
+  rm -rf "$BUILD_DIR/*"
 fi
 mkdir -v -p $BUILD_DIR
 
@@ -87,12 +87,6 @@ if [ ! -r linuxdeploy-plugin-gtk.sh ]; then
   chmod +x linuxdeploy-plugin-gtk.sh
 fi
 
-if [ "$USER" != "0ad" -]; then
-  run_cmd="su 0ad --command"
-else
-  run_cmd="/bin/bash -c"
-fi
-
 if [ $svn -ne 1 ]; then
   # Get, check, and extract source
   source=0ad-$VERSION-unix-build.tar.xz
@@ -111,12 +105,12 @@ if [ $svn -ne 1 ]; then
     $MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
   fi
   sha1sum -c $source_sum
-  $run_cmd "tar xJf $WORKSPACE/$source"
+  /bin/bash -c "tar xJf $WORKSPACE/$source"
 else
   if [ ! -r "0ad-svn" ]; then
     svn co https://svn.wildfiregames.com/public/ps/trunk/ 0ad-svn
   else
-    cd 0ad-svn
+    cd "$WORKSPACE/0ad-svn"
     svn up
     VERSION="$VERSION-r$(svn info --show-item revision)"
   fi
@@ -129,7 +123,7 @@ if [ ! -r "$ABS_PATH_SRC_ROOT/source/main.cpp" ]; then
 fi
 cd "$ABS_PATH_SRC_ROOT/build/workspaces"
 
-$run_cmd "ionice -c3 nice -n 19 \
+/bin/bash -c "ionice -c3 nice -n 19 \
   ./update-workspaces.sh \
     -j$(nproc) && \
   make config=release -C gcc -j$(nproc)"
@@ -153,7 +147,7 @@ if [ $svn -ne 1 ]; then
 
   $MINISIGN_PATH -Vm $data -P $MINISIGN_KEY
   sha1sum -c $data_sum
-  $run_cmd "tar xJf $data"
+  /bin/bash -c "tar xJf $data"
 else
   if [ ! -r 0ad-spirv.zip ]; then
     # see https://wildfiregames.com/forum/topic/104382-vulkan-new-graphics-api/
@@ -193,7 +187,7 @@ mkdir -p $APPDIR/usr/data/mods
 cp -a binaries/data/mods/mod $APPDIR/usr/data/mods
 if [ $svn -eq 1 ]; then
   mkdir -p $APPDIR/usr/data/mods/public
-  $run_cmd "binaries/system/pyrogenesis -writableRoot  \
+  /bin/bash -c "binaries/system/pyrogenesis -writableRoot  \
     -mod=mod   \
     -archivebuild=binaries/data/mods/public  \
     -archivebuild-output=$APPDIR/usr/data/mods/public/public.zip    \

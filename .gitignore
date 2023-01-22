@@ -3,3 +3,4 @@
 /linuxdeploy-plugin-gtk.sh
 /*.AppImage*
 /0ad-svn
+/minisign*linux.tar.gz*

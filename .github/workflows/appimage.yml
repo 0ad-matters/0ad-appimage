@@ -40,8 +40,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         name: 0ad-${{ env.VERSION }} AppImage
-        allowUpdates: True
-        prerelease: False
+        prerelease: True
         artifacts: "${{ env.WORKSPACE }}/0ad*.AppImage*"
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: False

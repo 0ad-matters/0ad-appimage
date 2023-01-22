@@ -1,9 +1,12 @@
 #!/bin/sh
 
-
+if [ -z "$UID" ]; then
+  echo "Could not detect UID."
+  exit 1
+fi
 
 export WORKSPACE="/0ad"
-export VERSION=${VERSION:="0.0.26-alpha"}
+export VERSION=${VERSION:-"0.0.26-alpha"}
 
 echo "Version is set to '$VERSION'"
 echo "use 'VERSION=<version> $0' to change it."
@@ -14,11 +17,12 @@ read -t 10
 set -ev
 
 docker run -it --rm \
-  -u 0ad \
   -e VERSION=$VERSION  \
   -e ARCH=x86_64 \
   -e WORKSPACE \
-  -e HOSTUSER=$USER \
+  -e HOSTUID=$UID \
   -v $PWD:$WORKSPACE \
   --entrypoint /0ad/workflow.sh \
   andy5995/0ad-build-env:bionic
+    /bin/bash -c 'usermod -u $HOSTUID 0ad \
+    && su 0ad --command "$WORKSPACE/workflow.sh"'
