@@ -149,11 +149,11 @@ if [ $svn -ne 1 ]; then
   sha1sum -c $data_sum
   /bin/bash -c "tar xJf $data"
 else
-  if [ ! -r 0ad-spirv.zip ]; then
-    # see https://wildfiregames.com/forum/topic/104382-vulkan-new-graphics-api/
-    curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip
-    # Later this will get extracted directly into the AppDir
-  fi
+  # see https://wildfiregames.com/forum/topic/104382-vulkan-new-graphics-api/
+  curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip
+  curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip.sha1sum
+  sha1sum -c 0ad-spirv.zip.sha1sum
+  # Later this will get extracted directly into the AppDir
 fi
 
 APPDIR="$BUILD_DIR/AppDir"
