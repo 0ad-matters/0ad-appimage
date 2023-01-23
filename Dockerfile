@@ -1,4 +1,5 @@
 FROM ubuntu:bionic
+ENV CC=gcc-8 CXX=g++-8
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update &&   \
     apt -y upgrade && \
@@ -39,7 +40,7 @@ RUN apt update &&   \
     rm -rf /var/lib/apt/lists
 
 ENV TOOLS_DIR="/tools"
-RUN mkdir -m 777 -p $TOOLS_DIR
+RUN mkdir -p $TOOLS_DIR
 ARG ARCH=x86_64
 RUN /bin/bash -c 'cd $TOOLS_DIR \
     && curl -LO https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20220822-1/linuxdeploy-${ARCH}.AppImage \
@@ -56,12 +57,16 @@ RUN /bin/bash -c 'curl -LO ${MINISIGN_URL}/minisign-${MINISIGN_VERSION}-linux.ta
     && tar xf minisign-${MINISIGN_VERSION}-linux.tar.gz -C ${TOOLS_DIR} \
     && mv ${TOOLS_DIR}/minisign-linux/${ARCH}/minisign ${TOOLS_DIR} \
     && $MINISIGN_PATH -Vm minisign-$MINISIGN_VERSION-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3 \
-    && rm -rf ${TOOLS_DIR}/minisign-${MINISIGN_VERSION}-linux/${ARCH} minisign-${MINISIGN_VERSION}-linux.tar.gz'
+    && rm -rf ${TOOLS_DIR}/minisign-linux minisign-${MINISIGN_VERSION}-linux.tar.gz*'
 
-RUN useradd -m 0adbuilder && passwd -d 0adbuilder
+# For some reason, if '/home/0adbuilder' exists,
+# ./updateworkspaces.sh fails after the Collada
+# build, when the python virtual environment is created.
+# Using '-M' here so the home dir doesn't get created
+RUN useradd -M 0adbuilder && passwd -d 0adbuilder
+
 ENV DOCKER_0AD_BUILD=TRUE
 # needed for spidermonkey build
 ENV SHELL=/bin/bash
 
-ENV CC=gcc-8 CXX=g++-8
 CMD ["/bin/bash","-l"]

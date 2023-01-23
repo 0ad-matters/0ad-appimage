@@ -22,7 +22,6 @@ docker run -it --rm \
   -e WORKSPACE \
   -e HOSTUID=$UID \
   -v $PWD:$WORKSPACE \
-  -v $HOME/src/0ad-svn:$WORKSPACE/0ad-svn \
   andy5995/0ad-build-env:bionic \
-    /bin/bash -c 'usermod -u $HOSTUID 0ad \
+    /bin/bash -c 'usermod -u $HOSTUID 0adbuilder \
     && su 0adbuilder --command "$WORKSPACE/workflow.sh"'

@@ -16,14 +16,14 @@ MINISIGN_KEY=RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
 
 export -p
 
-set -ev
-
 # This var is set in the the docker container
 if [ -z "DOCKER_0AD_BUILD" ]; then
-  @echo "This script is intended to be run inside a docker container."
-  @echo "(hint: andy5995/0ad-build-env:bionic)"
+  echo "This script is intended to be run inside a docker container."
+  echo "(hint: andy5995/0ad-build-env:bionic)"
   exit 1
 fi
+
+set -ev
 
 test -n "$VERSION"
 test -n "$WORKSPACE"
@@ -42,7 +42,7 @@ fi
 if [ -d "$APPDIR" ]; then
   rm -rf "$APPDIR"
 else
-  mkdir -v -p $"APPDIR"
+  mkdir -v -p "$APPDIR"
 fi
 
 if [ $svn -ne 1 ]; then
@@ -97,10 +97,10 @@ if [ ! -r "$ABS_PATH_SRC_ROOT/source/main.cpp" ]; then
 fi
 cd "$ABS_PATH_SRC_ROOT/build/workspaces"
 
-ionice -c3 nice -n 19 \
+/bin/bash -c 'ionice -c3 nice -n 19 \
   ./update-workspaces.sh \
     -j$(nproc) && \
-  make config=release -C gcc -j$(nproc)
+  make config=release -C gcc -j$(nproc)'
 
 # name: prepare AppDir
 cd $WORKSPACE
@@ -185,17 +185,10 @@ ionice -c3 $TOOLS_DIR/squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad
   --appdir $APPDIR \
   --output appimage \
   --plugin gtk
+
 DATE_STR=$(date +%y%m%d%H%M)
 mv 0_A.D.-$VERSION-$ARCH.AppImage 0ad-$VERSION-$DATE_STR-$ARCH.AppImage
 echo "Generating sha1sum..."
 sha1sum 0ad-$VERSION-$DATE_STR-$ARCH.AppImage > 0ad-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
-
-# This doesn't work because there is probably no such
-# user inside the container.
-#if [ -n "$HOSTUSER" ]; then
-  #for file in 0ad*AppImage 0ad*.xz 0ad*.minisig  0ad*.sha1sum linuxdeploy-plugin-gtk.sh; do
-    #chown $HOSTUSER "$file"
-  #done
-#fi
 
 exit 0
