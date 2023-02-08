@@ -23,7 +23,7 @@ on:
 jobs:
   # Label of the container job
   build-appimage:
-    # Containers must run in Linux based operating systems
+    container: andy5995/0ad-build-env:bionic
     runs-on: ubuntu-22.04
     env:
       ARCH: x86_64
