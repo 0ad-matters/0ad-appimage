@@ -82,12 +82,13 @@ if [ $svn -ne 1 ]; then
   tar xJf $WORKSPACE/$source
 else
   if [ ! -r "0ad-svn" ]; then
-    svn co https://svn.wildfiregames.com/public/ps/trunk/ 0ad-svn
+    svn --quiet co https://svn.wildfiregames.com/public/ps/trunk/ 0ad-svn
+    cd 0ad-svn
   else
     cd "$WORKSPACE/0ad-svn"
-    svn up
-    VERSION="$VERSION-r$(svn info --show-item revision)"
+    svn --quiet up
   fi
+  VERSION="$VERSION-r$(svn info --show-item revision)"
 fi
 
 # name: build
