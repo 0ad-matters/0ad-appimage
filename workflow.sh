@@ -153,6 +153,14 @@ cp -a binaries/data/l10n $APPDIR/usr/data
 cp -a binaries/data/tools $APPDIR/usr/data # for Atlas
 mkdir -p $APPDIR/usr/data/mods
 cp -a binaries/data/mods/mod $APPDIR/usr/data/mods
+
+# Hopefully prevent out-of-space failure when running on a GitHub hosted runner
+if [ -n "${GITHUB_ACTIONS}" ]; then
+  cd "${ABS_PATH_SRC_ROOT}/build/workspaces"
+  ./clean-workspaces.sh
+fi
+
+cd $ABS_PATH_SRC_ROOT
 if [ $svn -eq 1 ]; then
   mkdir -p $APPDIR/usr/data/mods/public
   binaries/system/pyrogenesis -writableRoot  \
