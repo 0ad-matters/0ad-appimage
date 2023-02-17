@@ -34,7 +34,7 @@ jobs:
     - name: Run Workflow script
       run: |
         chmod 1777 "$WORKSPACE"
-        su 0adbuilder --command "$WORKSPACE/workflow.sh"
+        su 0adbuilder --command "GITHUB_ACTIONS=${GITHUB_ACTIONS} $WORKSPACE/workflow.sh"
 
     - name: Release AppImage
       if: ${{ github.ref == 'refs/heads/trunk' }}

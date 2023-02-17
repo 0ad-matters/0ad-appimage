@@ -173,9 +173,16 @@ if [ $svn -eq 1 ]; then
 else
   cp -a binaries/data/mods/public $APPDIR/usr/data/mods
 fi
-# Create the image
+
 cd "$WORKSPACE"
 
+# Hopefully prevent out-of-space failure when running on a GitHub hosted runner
+echo "Removing data from source tree (already copied to ${APPDIR})..."
+if [ -n "${GITHUB_ACTIONS}" ]; then
+  rm -rf "${ABS_PATH_SRC_ROOT}/binaries/data"
+fi
+
+# Create the image
 DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
 ionice -c3 $TOOLS_DIR/squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad.desktop \
   --icon-file=$APPDIR/usr/share/pixmaps/0ad.png \
