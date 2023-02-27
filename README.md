@@ -42,3 +42,20 @@ repo root (otherwise they'll be downloaded during the script execution).
 
 If choosing the svn version, the svn repository will be checked out, unless
 you aleady have it in the repo root.
+
+## HOWTO change versions after a 0 A.D. release
+
+When running from the GitHub CI, change the VERSION string near the top of
+appimage.yml.
+
+If running the `make-appimage.sh` script locally, change the default VERSION
+string near the top of `make-appimage.sh`
+
+In either case, you may also need to change the minisign key near the top of
+`workflow.sh`.
+
+To customize and publish the docker image (see the Dockerfile in this repo) to
+your own Docker Hub account, you'll need to add a couple secrets to your
+repository. See https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
+
+
