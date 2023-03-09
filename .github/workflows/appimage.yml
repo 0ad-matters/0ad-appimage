@@ -42,7 +42,7 @@ jobs:
       with:
         name: 0ad-${{ env.VERSION }} AppImage
         allowUpdates: True
-        prerelease: True
+        prerelease: ${{ contains(env.VERSION, 'svn') || contains(env.VERSION, 'rc') }}
         artifacts: "${{ env.WORKSPACE }}/0ad*.AppImage*"
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: True
