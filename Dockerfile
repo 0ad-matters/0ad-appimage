@@ -1,11 +1,8 @@
-FROM ubuntu:bionic
-ENV CC=gcc-8 CXX=g++-8
+FROM ubuntu:focal
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update &&   \
     apt -y upgrade && \
     apt install -y  \
-        $CC \
-        $CXX \
         build-essential \
         cargo   \
         cmake   \

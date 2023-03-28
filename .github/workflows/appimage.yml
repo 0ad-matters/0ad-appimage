@@ -12,6 +12,8 @@ on:
       - 'AppRun'
       - 'version'
       - 'workflow.sh'
+      - '!**/docker.yml'
+      - '!Dockerfile
   pull_request:
     branches: [ "trunk" ]
     paths:
