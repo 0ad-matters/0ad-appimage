@@ -19,7 +19,7 @@ export -p
 # This var is set in the the docker container
 if [ -z "DOCKER_0AD_BUILD" ]; then
   echo "This script is intended to be run inside a docker container."
-  echo "(hint: andy5995/0ad-build-env:focal)"
+  echo "(hint: andy5995/0ad-build-env:bionic)"
   exit 1
 fi
 
