@@ -206,5 +206,6 @@ DATE_STR=$(date +%y%m%d%H%M)
 mv 0_A.D.-$VERSION-$ARCH.AppImage 0ad-$VERSION-$DATE_STR-$ARCH.AppImage
 echo "Generating sha1sum..."
 sha1sum 0ad-$VERSION-$DATE_STR-$ARCH.AppImage > 0ad-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
+cat 0ad-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
 
 exit 0
