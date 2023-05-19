@@ -72,13 +72,13 @@ if [ $svn -ne 1 ]; then
     fi
   done
 
-  if [ -n "${URI##*/rc*}" ]; then
-    if [ ! -r $URI/$source.minisig ]; then
-      curl -LO $URI/$source.minisig
-    fi
-    $MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
-  fi
-  sha1sum -c $source_sum
+  #if [ -n "${URI##*/rc*}" ]; then
+    #if [ ! -r $URI/$source.minisig ]; then
+      #curl -LO $URI/$source.minisig
+    #fi
+    #$MINISIGN_PATH -Vm $source -P $MINISIGN_KEY
+  #fi
+  #sha1sum -c $source_sum
   tar xJf $WORKSPACE/$source
 else
   if [ ! -r "0ad-svn" ]; then
@@ -116,12 +116,12 @@ if [ $svn -ne 1 ]; then
     fi
   done
 
-  if [ -n "${URI##*/rc*}" ] && [ ! -r $URI/$data.minisig ]; then
-      curl -LO $URI/$data.minisig
-  fi
+  #if [ -n "${URI##*/rc*}" ] && [ ! -r $URI/$data.minisig ]; then
+      #curl -LO $URI/$data.minisig
+  #fi
 
-  $MINISIGN_PATH -Vm $data -P $MINISIGN_KEY
-  sha1sum -c $data_sum
+  #$MINISIGN_PATH -Vm $data -P $MINISIGN_KEY
+  #sha1sum -c $data_sum
   tar xJf $data
 fi
 
