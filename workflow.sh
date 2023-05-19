@@ -170,17 +170,18 @@ if [ $svn -eq 1 ]; then
     -archivebuild-compress \
     && test -f "$APPDIR/usr/data/mods/public/public.zip"
   cp -a binaries/data/mods/public/mod.json $APPDIR/usr/data/mods/public
-  # spirv. See https://wildfiregames.com/forum/topic/104382-vulkan-new-graphics-api/
-  mkdir $APPDIR/usr/data/mods/0ad-spirv
-  cd $APPDIR/usr/data/mods/0ad-spirv
-  curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip
-  curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip.sha1sum
-  sha1sum -c 0ad-spirv.zip.sha1sum
-  rm 0ad-spirv.zip.sha1sum
-  unzip 0ad-spirv.zip mod.json
 else
   cp -a binaries/data/mods/public $APPDIR/usr/data/mods
 fi
+
+# spirv. See https://wildfiregames.com/forum/topic/104382-vulkan-new-graphics-api/
+mkdir $APPDIR/usr/data/mods/0ad-spirv
+cd $APPDIR/usr/data/mods/0ad-spirv
+curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip
+curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip.sha1sum
+sha1sum -c 0ad-spirv.zip.sha1sum
+rm 0ad-spirv.zip.sha1sum
+unzip 0ad-spirv.zip mod.json
 
 cd "$WORKSPACE"
 
