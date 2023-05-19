@@ -30,7 +30,7 @@ jobs:
     env:
       ARCH: x86_64
       WORKSPACE: ${{ github.workspace }}
-      VERSION: 0.0.27-svn-unstable
+      VERSION: 0.0.27-rc1-27645-alpha
     steps:
     - uses: actions/checkout@v3
     - name: Run Workflow script

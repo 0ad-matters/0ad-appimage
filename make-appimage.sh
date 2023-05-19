@@ -6,7 +6,7 @@ if [ -z "$UID" ]; then
 fi
 
 export WORKSPACE="/0ad"
-export VERSION=${VERSION:-"0.0.26-alpha"}
+export VERSION=${VERSION:-"0.0.27-rc1-27645-alpha"}
 
 echo "Version is set to '$VERSION'"
 echo "use 'VERSION=<version> $0' to change it."
