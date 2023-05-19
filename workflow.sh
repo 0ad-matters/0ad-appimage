@@ -66,7 +66,7 @@ if [ $svn -ne 1 ]; then
   source=0ad-$VERSION-unix-build.tar.xz
   source_sum=$source.sha1sum
 
-  for file in $source $source_sum; do
+  for file in $source; do
     if [ ! -r "$file" ]; then
       curl -LO "$URI/$file"
     fi
@@ -110,7 +110,7 @@ if [ $svn -ne 1 ]; then
   data=0ad-$VERSION-unix-data.tar.xz
   data_sum=$data.sha1sum
   echo "Getting data and extracting archive..."
-  for file in $data $data_sum; do
+  for file in $data; do
     if [ ! -r "$file" ]; then
       curl -LO "$URI/$file"
     fi
