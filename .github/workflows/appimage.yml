@@ -25,12 +25,17 @@ on:
 jobs:
   # Label of the container job
   build-appimage:
-    container: andy5995/0ad-build-env:focal
+    strategy:
+      fail-fast: false
+      matrix:
+        ubuntu_codename: ['focal', 'jammy']
+    container: andy5995/0ad-build-env:${{ matrix.ubuntu_codename }}
     runs-on: ubuntu-22.04
     env:
       ARCH: x86_64
       WORKSPACE: ${{ github.workspace }}
       VERSION: 0.0.27-rc1-27645-alpha
+      UBUNTU_CODENAME: ${{ matrix.ubuntu_codename }}
     steps:
     - uses: actions/checkout@v3
     - name: Run Workflow script

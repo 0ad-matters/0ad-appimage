@@ -5,6 +5,9 @@ if [ -z "$UID" ]; then
   exit 1
 fi
 
+# valid values are bionic, focal, or jammy
+UBUNTU_CODENAME=${UBUNTU_CODENAME:-"focal"}
+
 export WORKSPACE="/0ad"
 export VERSION=${VERSION:-"0.0.27-rc1-27645-alpha"}
 
@@ -22,6 +25,6 @@ docker run -it --rm \
   -e WORKSPACE \
   -e HOSTUID=$UID \
   -v $PWD:$WORKSPACE \
-  andy5995/0ad-build-env:focal \
+  andy5995/0ad-build-env:$UBUNTU_CODENAME \
     /bin/bash -c 'usermod -u $HOSTUID 0adbuilder \
     && su 0adbuilder --command "$WORKSPACE/workflow.sh"'
