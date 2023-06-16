@@ -34,8 +34,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./Dockerfile-${{ ubuntu_codename }}
+          file: ./Dockerfile-${{ matrix.ubuntu_codename }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:${{ ubuntu_codename }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:${{ matrix.ubuntu_codename }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:buildcache,mode=max
