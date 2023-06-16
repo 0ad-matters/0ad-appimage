@@ -204,9 +204,10 @@ ionice -c3 $TOOLS_DIR/squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad
   --plugin gtk
 
 DATE_STR=$(date +%y%m%d%H%M)
-mv 0_A.D.-$VERSION-$ARCH.AppImage 0ad-$VERSION-$DATE_STR-$ARCH.AppImage
+OUT_APPIMAGE="0ad-$VERSION-$DATE_STR-$UBUNTU_CODENAME-$ARCH.AppImage"
+mv 0_A.D.-$VERSION-$ARCH.AppImage $OUT_APPIMAGE
 echo "Generating sha1sum..."
-sha1sum 0ad-$VERSION-$DATE_STR-$ARCH.AppImage > 0ad-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
-cat 0ad-$VERSION-$DATE_STR-$ARCH.AppImage.sha1sum
+sha1sum $OUT_APPIMAGE > "$OUT_APPIMAGE.sha1sum"
+cat "$OUT_APPIMAGE.sha1sum"
 
 exit 0

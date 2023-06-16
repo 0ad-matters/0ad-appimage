@@ -37,6 +37,13 @@ Version strings for stable releases are typically in the format:
     0.0.25b-alpha
     0.0.27-rc1-xxxxx-alpha (for release candidates)
 
+To build on a different version of Ubuntu, precede the script with the
+codename, e.g.
+
+    UBUNTU_CODENAME=jammy ./make_appimage.sh
+
+(valid values are bionic, focal, or jammy)
+
 To speed up the process, prior to running the above script, copy the source
 and data archives (e.g., 0ad-0.0.26-alpha-unix-{build,data}.tar.xz) to the
 repo root (otherwise they'll be downloaded during the script execution).
@@ -50,7 +57,7 @@ When running from the GitHub CI, change the VERSION string near the top of
 appimage.yml.
 
 If running the `make-appimage.sh` script locally, change the default VERSION
-string near the top of `make-appimage.sh`
+string near the top of `make-appimage.sh`.
 
 In either case, you may also need to change the minisign key near the top of
 `workflow.sh`.
