@@ -11,6 +11,10 @@ on:
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        ubuntu_codename: ['focal', 'jammy']
     runs-on: ubuntu-latest
     steps:
       -
@@ -30,8 +34,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./Dockerfile-jammy
+          file: ./Dockerfile-${{ ubuntu_codename }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:focal
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:${{ ubuntu_codename }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/0ad-build-env:buildcache,mode=max
