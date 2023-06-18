@@ -198,6 +198,8 @@ ionice -c3 $TOOLS_DIR/squashfs-root/AppRun -d $APPDIR/usr/share/applications/0ad
   --icon-filename=0ad \
   --executable $APPDIR/usr/bin/pyrogenesis \
   --library=/usr/lib/x86_64-linux-gnu/libthai.so.0 \
+  --library=/usr/lib/x86_64-linux-gnu/libvulkan.so \
+  --library=/usr/lib/x86_64-linux-gnu/libvulkan_intel.so \
   --custom-apprun=$WORKSPACE/AppRun \
   --appdir $APPDIR \
   --output appimage \
