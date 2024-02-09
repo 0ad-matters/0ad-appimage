@@ -28,14 +28,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ubuntu_codename: ['focal', 'jammy']
-    container: andy5995/0ad-build-env:${{ matrix.ubuntu_codename }}
-    runs-on: ubuntu-22.04
+        platform: ['amd64']
+    runs-on: ubuntu-latest
     env:
-      ARCH: x86_64
-      WORKSPACE: ${{ github.workspace }}
-      VERSION: 0.0.27-rc1-27645-alpha
+      VERSION: 0.0.26-alpha
       UBUNTU_CODENAME: ${{ matrix.ubuntu_codename }}
+      MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
     steps:
     - uses: actions/checkout@v4
     - name: Run Workflow script
@@ -50,18 +48,15 @@ jobs:
         name: 0ad-${{ env.VERSION }} AppImage
         allowUpdates: True
         prerelease: ${{ contains(env.VERSION, 'svn') || contains(env.VERSION, 'rc') }}
-        artifacts: "${{ env.WORKSPACE }}/0ad*.AppImage*"
+        artifacts: ./out/0ad*.AppImage*
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: True
         omitBodyDuringUpdate: True
         tag: v${{ env.VERSION }}
-        replacesArtifacts: true
+        replacesArtifacts: false
     - name: Upload Artifacts
       if: ${{ github.ref != 'refs/heads/trunk' }}
       uses: actions/upload-artifact@v4
       with:
-        name: AppImage
-        path: ${{ env.WORKSPACE }}/0ad*.AppImage*
-
-
-
+        name: AppImage-${{ matrix.platform }}
+        path: ./out/0ad*.AppImage*
