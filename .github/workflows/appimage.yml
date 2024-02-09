@@ -28,20 +28,50 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ubuntu_codename: ['focal', 'jammy']
-    container: andy5995/0ad-build-env:${{ matrix.ubuntu_codename }}
-    runs-on: ubuntu-22.04
+        platform: ['amd64']
+    runs-on: ubuntu-latest
     env:
-      ARCH: x86_64
-      WORKSPACE: ${{ github.workspace }}
-      VERSION: 0.0.27-rc1-27645-alpha
+      VERSION: 0.0.26-alpha
       UBUNTU_CODENAME: ${{ matrix.ubuntu_codename }}
+      MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
     steps:
-    - uses: actions/checkout@v3
-    - name: Run Workflow script
-      run: |
-        chmod 1777 "$WORKSPACE"
-        su 0adbuilder --command "GITHUB_ACTIONS=${GITHUB_ACTIONS} $WORKSPACE/workflow.sh"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Curl source and data
+        run: |
+          source=0ad-$VERSION-unix-build.tar.xz
+          source_sum=$source.sha1sum
+          for file in $source $source_sum; do
+            curl -LO "$URI/$file"
+          done
+          sha1sum -c $source_sum
+          tar xJf $WORKSPACE/$source
+          data=0ad-$VERSION-unix-data.tar.xz
+          data_sum=$data.sha1sum
+          echo "Getting data and extracting archive..."
+          for file in $data $data_sum; do
+              curl -LO "$URI/$file"
+          done
+          sha1sum -c $data_sum
+          tar xJf $data
+          echo "SOURCE_ROOT=$ACTION_WORKSPACE/0ad-$VERSION" >> $GITHUB_ENV
+
+      - name: Build AppImage
+        uses: andy5995/linuxdeploy-build-helper@docs-update
+        with:
+          platform: ${{ matrix.platform }}
+          source_root: $SOURCE_ROOT
+          pre_appimage_script: workflow.sh
+          linuxdeploy_output_version: $VERSION
+          linuxdeploy_args: |
+            -d $SOURCE_ROOT/build/resources/0ad.desktop \
+            --icon-file=$SOURCE_ROOT/build/resources/0ad.png \
+            --icon-filename=0ad \
+            --executable $APPDIR/usr/bin/pyrogenesis \
+            --library=/usr/lib/x86_64-linux-gnu/libthai.so.0 \
+            --custom-apprun=$ACTION_WORKSPACE/AppRun \
+            --output appimage \
+            --plugin gtk
 
     - name: Release AppImage
       if: ${{ github.ref == 'refs/heads/trunk' }}
@@ -50,18 +80,18 @@ jobs:
         name: 0ad-${{ env.VERSION }} AppImage
         allowUpdates: True
         prerelease: ${{ contains(env.VERSION, 'svn') || contains(env.VERSION, 'rc') }}
-        artifacts: "${{ env.WORKSPACE }}/0ad*.AppImage*"
+        artifacts: ./out/0ad*.AppImage*
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: True
         omitBodyDuringUpdate: True
         tag: v${{ env.VERSION }}
-        replacesArtifacts: true
+        replacesArtifacts: false
     - name: Upload Artifacts
       if: ${{ github.ref != 'refs/heads/trunk' }}
       uses: actions/upload-artifact@v3
       with:
-        name: AppImage
-        path: ${{ env.WORKSPACE }}/0ad*.AppImage*
+        name: AppImage-${{ matrix.platform }}
+        path: ./out/0ad*.AppImage*
 
 
 

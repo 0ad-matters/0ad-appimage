@@ -46,16 +46,6 @@ RUN /bin/bash -c 'cd $TOOLS_DIR \
     && rm ./linuxdeploy-${ARCH}.AppImage \
     && cd -'
 
-ARG MINISIGN_VERSION="0.11"
-ENV MINISIGN_PATH=${TOOLS_DIR}/minisign
-ARG MINISIGN_URL=https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}
-RUN /bin/bash -c 'curl -LO ${MINISIGN_URL}/minisign-${MINISIGN_VERSION}-linux.tar.gz \
-    && curl -LO ${MINISIGN_URL}/minisign-${MINISIGN_VERSION}-linux.tar.gz.minisig \
-    && tar xf minisign-${MINISIGN_VERSION}-linux.tar.gz -C ${TOOLS_DIR} \
-    && mv ${TOOLS_DIR}/minisign-linux/${ARCH}/minisign ${TOOLS_DIR} \
-    && $MINISIGN_PATH -Vm minisign-$MINISIGN_VERSION-linux.tar.gz -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3 \
-    && rm -rf ${TOOLS_DIR}/minisign-linux minisign-${MINISIGN_VERSION}-linux.tar.gz*'
-
 # For some reason, if '/home/0adbuilder' exists,
 # ./updateworkspaces.sh fails after the Collada
 # build, when the python virtual environment is created.
