@@ -48,8 +48,7 @@ To speed up the process, prior to running the above script, copy the source
 and data archives (e.g., 0ad-0.0.26-alpha-unix-{build,data}.tar.xz) to the
 repo root (otherwise they'll be downloaded during the script execution).
 
-If choosing the svn version, the svn repository will be checked out, unless
-you aleady have it in the repo root.
+    SOURCE_ROOT=$(pwd)/0ad-0.0.26-alpha ./workflow.sh
 
 ## HOWTO change versions after a 0 A.D. release
 
