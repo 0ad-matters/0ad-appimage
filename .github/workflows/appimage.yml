@@ -37,7 +37,7 @@ jobs:
       VERSION: 0.0.27-rc1-27645-alpha
       UBUNTU_CODENAME: ${{ matrix.ubuntu_codename }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Run Workflow script
       run: |
         chmod 1777 "$WORKSPACE"
