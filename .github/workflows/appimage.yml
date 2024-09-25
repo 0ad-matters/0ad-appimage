@@ -58,7 +58,7 @@ jobs:
         replacesArtifacts: true
     - name: Upload Artifacts
       if: ${{ github.ref != 'refs/heads/trunk' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: AppImage
         path: ${{ env.WORKSPACE }}/0ad*.AppImage*
