@@ -10,15 +10,9 @@ if [[ "$WORKSPACE" != /* ]]; then
 fi
 test -d "$WORKSPACE"
 
-SOURCE_ROOT=${SOURCE_ROOT:-$ACTION_SOURCE_ROOT}
-SOURCE_ROOT=${SOURCE_ROOT:-$WORKSPACE}
+SOURCE_ROOT="$WORKSPACE/0ad-$VERSION"
 if [[ "$SOURCE_ROOT" != /* ]]; then
   echo "The source root path must be absolute"
-  exit 1
-fi
-
-if [ ! -r "$SOURCE_ROOT/source/main.cpp" ]; then
-  echo "set the source root!"
   exit 1
 fi
 
@@ -32,7 +26,7 @@ fi
 env
 export -p
 
-URI=https://releases.wildfiregames.com/rc
+URI="https://releases.wildfiregames.com"
 
 cd $WORKSPACE
 if [ ! -e "AppRun" ]; then
@@ -47,7 +41,6 @@ sudo DEBIAN_FRONTEND=noninteractive -i sh -c "apt update && apt -y upgrade && \
     apt install -y  \
     cargo   \
     libboost-dev    \
-    g++-8 \
     libboost-filesystem-dev \
     libboost-system-dev   \
     libcurl4-gnutls-dev \
@@ -63,11 +56,11 @@ sudo DEBIAN_FRONTEND=noninteractive -i sh -c "apt update && apt -y upgrade && \
     libsdl2-dev \
     libsodium-dev   \
     libvorbis-dev \
-    libvulkan-dev   \
     libwxgtk3.0-gtk3-dev \
     libxml2-dev \
     m4 \
     python3 \
+    python3-setuptools \
     rustc   \
     zlib1g-dev"
 
@@ -82,7 +75,12 @@ if [ ! -f "$source" ]; then
   done
 fi
 sha1sum -c $source_sum
-tar -kxJf $WORKSPACE/$source
+# tar --skip-old-files -xJf $source
+
+if [ ! -r "$SOURCE_ROOT/source/main.cpp" ]; then
+  echo "Check the source root!"
+  exit 1
+fi
 
 # Spidermonkey build fails with 7, 8, 9, and 10 on Ubuntu focal?
 #export CC=gcc-7
@@ -106,7 +104,7 @@ if [ ! -f "$data" ]; then
   done
 fi
 sha1sum -c $data_sum
-tar kxJf $data
+tar --skip-old-files -xJf $data
 
 # name: prepare AppDir
 
@@ -170,10 +168,20 @@ if [ -n "$ACTION_WORKSPACE" ]; then
   rm -rf "$SOURCE_ROOT/binaries/data"
 fi
 
+# Set up output directory
+OUT_DIR="$WORKSPACE/out"
+if [ ! -d "$OUT_DIR" ]; then
+  mkdir "$OUT_DIR"
+fi
+cd "$OUT_DIR"
+
+# Set LinuxDeploy output version
+LINUXDEPLOY_OUTPUT_VERSION="$VERSION"
+
 # Create the image
 if [ -z "ACTION_WORKSPACE" ]; then
-  export DEPLOY_GTK_VERSION=3 # Variable used by gtk plugin
-  linuxdeploy \
+# Variable used by gtk plugin
+  DEPLOY_GTK_VERSION=3 linuxdeploy \
     -d $SOURCE_DIR/build/resources/0ad.desktop \
     --icon-file=$SOURCE_DIR/build/resources/0ad.png \
     --icon-filename=0ad \

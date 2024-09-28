@@ -23,13 +23,9 @@ if desired:
 ## Build locally
 
 You can build the appimage locally if you have docker installed. While in the
-repo root, to build the latest stable version, run:
-
-    ./make-appimage.sh
-
-or to build an svn snapshot:
-
-    VERSION=0.0.27-svn-unstable ./make-appimage.sh
+repo root, to build the latest stable version, see the docker run arguments in
+.github/workflows/appimage.yml (note you'll have to change variables that
+normally get created earlier in the yml file).
 
 Version strings for stable releases are typically in the format:
 
@@ -42,27 +38,4 @@ codename, e.g.
 
     UBUNTU_CODENAME=jammy ./make_appimage.sh
 
-(valid values are bionic, focal, or jammy)
-
-To speed up the process, prior to running the above script, copy the source
-and data archives (e.g., 0ad-0.0.26-alpha-unix-{build,data}.tar.xz) to the
-repo root (otherwise they'll be downloaded during the script execution).
-
-    SOURCE_ROOT=$(pwd)/0ad-0.0.26-alpha ./workflow.sh
-
-## HOWTO change versions after a 0 A.D. release
-
-When running from the GitHub CI, change the VERSION string near the top of
-appimage.yml.
-
-If running the `make-appimage.sh` script locally, change the default VERSION
-string near the top of `make-appimage.sh`.
-
-In either case, you may also need to change the minisign key near the top of
-`workflow.sh`.
-
-To customize and publish the docker image (see the Dockerfile in this repo) to
-your own Docker Hub account, you'll need to add a couple secrets to your
-repository. See https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
-
-
+(valid values are focal, or jammy)

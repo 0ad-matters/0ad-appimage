@@ -7,20 +7,16 @@ on:
   workflow_dispatch:
   push:
     branches: [ "trunk" ]
-    paths:
-      - '.github/workflows/appimage.yml'
-      - 'AppRun'
-      - 'version'
-      - 'workflow.sh'
-      - '!**/docker.yml'
-      - '!Dockerfile*'
+    paths-ignore:
+      - '.gitignore'
+      - 'LICENSE'
+      - 'README.md'
   pull_request:
     branches: [ "trunk" ]
-    paths:
-      - '.github/workflows/appimage.yml'
-      - 'AppRun'
-      - 'version'
-      - 'workflow.sh'
+    paths-ignore:
+      - '.gitignore'
+      - 'LICENSE'
+      - 'README.md'
 
 jobs:
   # Label of the container job
@@ -28,18 +24,39 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ['amd64']
+        platform:
+          - linux/amd64
+#          - linux/arm64
+        codename:
+          - focal
+
     runs-on: ubuntu-latest
     env:
       VERSION: 0.0.26-alpha
-      UBUNTU_CODENAME: ${{ matrix.ubuntu_codename }}
       MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
     steps:
     - uses: actions/checkout@v4
-    - name: Run Workflow script
+
+    - if: ${{ ! contains(matrix.platform, 'amd64') }}
+      uses: docker/setup-qemu-action@v3
+
+    - name: Build AppImage
       run: |
-        chmod 1777 "$WORKSPACE"
-        su 0adbuilder --command "GITHUB_ACTIONS=${GITHUB_ACTIONS} $WORKSPACE/workflow.sh"
+        docker run -t \
+          --rm \
+          --platform=${{ matrix.platform }} \
+          -e HOSTUID=$(id -u) \
+          -e VERSION \
+          -v $GITHUB_WORKSPACE:/workspace \
+          -w /workspace \
+          andy5995/linuxdeploy:${{ matrix.codename }} ./workflow.sh
+
+    - name: Create sha256sum
+      run: |
+        IMAGE_FILENAME=$(basename `find out/*AppImage`)
+        echo "IMAGE_FILENAME=$IMAGE_FILENAME" >> $GITHUB_ENV
+        cd out
+        sha256sum "$IMAGE_FILENAME" > "$IMAGE_FILENAME.sha256sum"
 
     - name: Release AppImage
       if: ${{ github.ref == 'refs/heads/trunk' }}
