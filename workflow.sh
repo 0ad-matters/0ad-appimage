@@ -75,7 +75,10 @@ if [ ! -f "$source" ]; then
   done
 fi
 sha1sum -c $source_sum
-# tar --skip-old-files -xJf $source
+
+# --skip-old-files is used for local testing (normally there is no need to
+# extract twice)
+tar --skip-old-files -xJf $source
 
 if [ ! -r "$SOURCE_ROOT/source/main.cpp" ]; then
   echo "Check the source root!"
