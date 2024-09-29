@@ -28,7 +28,7 @@ jobs:
           - linux/amd64
 #          - linux/arm64
         codename:
-          - focal
+          - jammy
 
     runs-on: ubuntu-latest
     env:
@@ -49,7 +49,7 @@ jobs:
           -e VERSION \
           -v $GITHUB_WORKSPACE:/workspace \
           -w /workspace \
-          andy5995/linuxdeploy:${{ matrix.codename }} ./workflow.sh
+          andy5995/linuxdeploy:${{ matrix.codename }} ./make-appimage.sh
 
     - name: Create sha256sum
       run: |

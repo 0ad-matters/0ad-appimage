@@ -36,6 +36,11 @@ fi
 
 cd "$WORKSPACE"
 
+if [ ! -d debian ]; then
+  curl -LO "http://deb.debian.org/debian/pool/main/0/0ad/0ad_0.0.26-3.debian.tar.xz"
+  tar xvf "0ad_0.0.26-3.debian.tar.xz"
+fi
+
 # Pre-configure debconf selections to avoid prompts
 sudo DEBIAN_FRONTEND=noninteractive -i sh -c "apt update && apt -y upgrade && \
     apt install -y  \
@@ -76,13 +81,33 @@ if [ ! -f "$source" ]; then
 fi
 sha1sum -c $source_sum
 
-# --skip-old-files is used for local testing (normally there is no need to
-# extract twice)
-tar --skip-old-files -xJf $source
-
 if [ ! -r "$SOURCE_ROOT/source/main.cpp" ]; then
-  echo "Check the source root!"
-  exit 1
+  tar -xJf $source
+  cd "$SOURCE_ROOT"
+  patch -p1 < "$WORKSPACE/debian/patches/TestStunClient"
+  patch -p1 < "$WORKSPACE/debian/patches/fix-bindir.patch"
+  patch -p1 < "$WORKSPACE/debian/patches/Fix-build-mozjs-on-armhf.patch"
+  patch -p1 < "$WORKSPACE/debian/patches/Disable-test_regression_rP26522.patch"
+  patch -p1 < "$WORKSPACE/debian/patches/fix_python_3.11_ftbfs.patch"
+  mkdir -p "$SOURCE_ROOT/libraries/source/fcollada/lib"
+  # https://bugs.debian.org/1028179
+  # This patch includes git commands that require git >= 2.28, which is not
+  # available on Ubuntu Focal unless using a PPA or some other method.
+  cp "$WORKSPACE/debian/patches/mozjs_virtualenv.patch" "$SOURCE_ROOT/libraries/source/spidermonkey"
+else
+  cd "$SOURCE_ROOT"
+  build/workspaces/clean-workspaces.sh
+	# Clean up some extra cruft not picked up by clean-workspaces.sh
+	find binaries/system/ -type f ! -name readme.txt -delete
+	rm -f libraries/fcollada/lib/*.a
+	rm -f build/premake/.*.tmp
+	rm -rf libraries/source/spidermonkey/lib
+	rm -f libraries/source/cxxtest-4.4/python/cxxtest/*.pyc
+	rm -f libraries/source/fcollada/lib/*
+	rm -rf libraries/source/spidermonkey/include-unix-*
+	rm -rf libraries/source/spidermonkey/mozjs-78.6.0
+	rm -f libraries/source/nvtt/lib/*.so
+	rm -f source/ps/tests/stub_impl_hack.cpp
 fi
 
 # Spidermonkey build fails with 7, 8, 9, and 10 on Ubuntu focal?
@@ -91,9 +116,10 @@ fi
 # Using some Debian patches might work
 # https://packages.debian.org/bookworm/0ad
 # Giving up for now... -andy5995/2024-02-09
-cd "$SOURCE_ROOT/build/workspaces"
 
+cd "$SOURCE_ROOT/build/workspaces"
 /bin/bash -c './update-workspaces.sh \
+    --without-pch \
     -j$(nproc) && \
   make config=release -C gcc -j$(nproc)'
 
