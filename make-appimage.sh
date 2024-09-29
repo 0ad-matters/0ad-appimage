@@ -97,17 +97,17 @@ if [ ! -r "$SOURCE_ROOT/source/main.cpp" ]; then
 else
   cd "$SOURCE_ROOT"
   build/workspaces/clean-workspaces.sh
-	# Clean up some extra cruft not picked up by clean-workspaces.sh
-	find binaries/system/ -type f ! -name readme.txt -delete
-	rm -f libraries/fcollada/lib/*.a
-	rm -f build/premake/.*.tmp
-	rm -rf libraries/source/spidermonkey/lib
-	rm -f libraries/source/cxxtest-4.4/python/cxxtest/*.pyc
-	rm -f libraries/source/fcollada/lib/*
-	rm -rf libraries/source/spidermonkey/include-unix-*
-	rm -rf libraries/source/spidermonkey/mozjs-78.6.0
-	rm -f libraries/source/nvtt/lib/*.so
-	rm -f source/ps/tests/stub_impl_hack.cpp
+  # Clean up some extra cruft not picked up by clean-workspaces.sh
+  find binaries/system/ -type f ! -name readme.txt -delete
+  rm -f libraries/fcollada/lib/*.a
+  rm -f build/premake/.*.tmp
+  rm -rf libraries/source/spidermonkey/lib
+  rm -f libraries/source/cxxtest-4.4/python/cxxtest/*.pyc
+  rm -f libraries/source/fcollada/lib/*
+  rm -rf libraries/source/spidermonkey/include-unix-*
+  rm -rf libraries/source/spidermonkey/mozjs-78.6.0
+  rm -f libraries/source/nvtt/lib/*.so
+  rm -f source/ps/tests/stub_impl_hack.cpp
 fi
 
 # Spidermonkey build fails with 7, 8, 9, and 10 on Ubuntu focal?
