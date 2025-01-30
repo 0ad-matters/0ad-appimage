@@ -8,9 +8,14 @@
 set -e
 
 HERE="$(readlink -f "$(dirname "$0")")"
-BINARY_NAME=$(basename "$ARGV0")
 
-if [ "$BINARY_NAME" = "pyrogenesis" -o "$BINARY_NAME" = "0ad" ] ; then
+BINARY_NAME=${BINARY_NAME:-"pyrogenesis"}
+
+echo "To invoke the Actor editor:"
+echo "BINARY_NAME=ActorEditor $0"
+echo ""
+
+if [ "$BINARY_NAME" = "pyrogenesis" ] || [ "$BINARY_NAME" = "0ad" ]; then
   exec "$HERE/usr/bin/pyrogenesis" "$@"
 elif [ "$BINARY_NAME" = "ActorEditor" ]; then
   exec "$HERE/usr/bin/ActorEditor" "$@"

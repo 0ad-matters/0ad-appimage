@@ -24,32 +24,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - linux/amd64
-#          - linux/arm64
-        codename:
-          - jammy
+        os:
+          - ubuntu-24.04-arm
+          - ubuntu-24.04
 
     runs-on: ubuntu-latest
     env:
-      VERSION: 0.0.26-alpha
+      VERSION: 0.27.0
       MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
     steps:
     - uses: actions/checkout@v4
 
-    - if: ${{ ! contains(matrix.platform, 'amd64') }}
-      uses: docker/setup-qemu-action@v3
-
     - name: Build AppImage
       run: |
-        docker run -t \
-          --rm \
-          --platform=${{ matrix.platform }} \
-          -e HOSTUID=$(id -u) \
-          -e VERSION \
-          -v $GITHUB_WORKSPACE:/workspace \
-          -w /workspace \
-          andy5995/linuxdeploy:${{ matrix.codename }} ./make-appimage.sh
+        export HOSTUID=$(id -u) HOSTGID=$(id -g)
+        docker compose -f ./docker-compose.yml run --rm build
 
     - name: Create sha256sum
       run: |
@@ -64,7 +53,7 @@ jobs:
       with:
         name: 0ad-${{ env.VERSION }} AppImage
         allowUpdates: True
-        prerelease: ${{ contains(env.VERSION, 'svn') || contains(env.VERSION, 'rc') }}
+        prerelease: ${{ contains(env.VERSION, 'rc') }}
         artifacts: ./out/0ad*.AppImage*
         token: ${{ secrets.GITHUB_TOKEN }}
         omitNameDuringUpdate: True
@@ -75,5 +64,5 @@ jobs:
       if: ${{ github.ref != 'refs/heads/trunk' }}
       uses: actions/upload-artifact@v4
       with:
-        name: AppImage-${{ matrix.platform }}
+        name: AppImage-${{ matrix.os }}
         path: ./out/0ad*.AppImage*

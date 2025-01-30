@@ -2,5 +2,7 @@
 /tools/
 /linuxdeploy-plugin-gtk.sh
 /*.AppImage*
-/0ad-svn
+/0ad-*
 /minisign*linux.tar.gz*
+/out
+/premake*tar.gz

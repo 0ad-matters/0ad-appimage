@@ -2,8 +2,11 @@
 
 set -ev
 
-WORKSPACE=${WORKSPACE:-$ACTION_WORKSPACE}
-WORKSPACE=${WORKSPACE:-$(pwd)}
+if [ -z "$VERSION" ]; then
+  echo "VERSION must be set"
+  exit 1
+fi
+
 if [[ "$WORKSPACE" != /* ]]; then
   echo "The workspace path must be absolute"
   exit 1
@@ -36,15 +39,12 @@ fi
 
 cd "$WORKSPACE"
 
-if [ ! -d debian ]; then
-  curl -LO "http://deb.debian.org/debian/pool/main/0/0ad/0ad_0.0.26-3.debian.tar.xz"
-  tar xvf "0ad_0.0.26-3.debian.tar.xz"
-fi
-
-# Pre-configure debconf selections to avoid prompts
 sudo DEBIAN_FRONTEND=noninteractive -i sh -c "apt update && apt -y upgrade && \
     apt install -y  \
     cargo   \
+    cmake \
+    curl \
+    $CC \
     libboost-dev    \
     libboost-filesystem-dev \
     libboost-system-dev   \
@@ -63,59 +63,53 @@ sudo DEBIAN_FRONTEND=noninteractive -i sh -c "apt update && apt -y upgrade && \
     libvorbis-dev \
     libwxgtk3.0-gtk3-dev \
     libxml2-dev \
+    llvm \
     m4 \
+    patchelf \
     python3 \
-    python3-setuptools \
     rustc   \
     zlib1g-dev"
 
 # needed for spidermonkey build
-export SHELL=/bin/bash
+#export SHELL=/bin/bash
+PREMAKE="premake-5.0.0-beta4-linux.tar.gz"
+if [ ! -f "$PREMAKE" ]; then
+  wget https://github.com/premake/premake-core/releases/download/v5.0.0-beta4/$PREMAKE
+  tar -xvf "$PREMAKE"
+  sudo mv premake5 /usr/bin
+fi
 
 source=0ad-$VERSION-unix-build.tar.xz
 source_sum=$source.sha1sum
-if [ ! -f "$source" ]; then
-  for file in $source $source_sum; do
+for file in $source $source_sum; do
+  if [ ! -f "$file" ]; then
     curl -LO "$URI/$file"
-  done
-fi
+  fi
+done
 sha1sum -c $source_sum
 
 if [ ! -r "$SOURCE_ROOT/source/main.cpp" ]; then
   tar -xJf $source
-  cd "$SOURCE_ROOT"
-  patch -p1 < "$WORKSPACE/debian/patches/TestStunClient"
-  patch -p1 < "$WORKSPACE/debian/patches/fix-bindir.patch"
-  patch -p1 < "$WORKSPACE/debian/patches/Fix-build-mozjs-on-armhf.patch"
-  patch -p1 < "$WORKSPACE/debian/patches/Disable-test_regression_rP26522.patch"
-  patch -p1 < "$WORKSPACE/debian/patches/fix_python_3.11_ftbfs.patch"
-  mkdir -p "$SOURCE_ROOT/libraries/source/fcollada/lib"
-  # https://bugs.debian.org/1028179
-  # This patch includes git commands that require git >= 2.28, which is not
-  # available on Ubuntu Focal unless using a PPA or some other method.
-  cp "$WORKSPACE/debian/patches/mozjs_virtualenv.patch" "$SOURCE_ROOT/libraries/source/spidermonkey"
-else
-  cd "$SOURCE_ROOT"
-  build/workspaces/clean-workspaces.sh
-  # Clean up some extra cruft not picked up by clean-workspaces.sh
-  find binaries/system/ -type f ! -name readme.txt -delete
-  rm -f libraries/fcollada/lib/*.a
-  rm -f build/premake/.*.tmp
-  rm -rf libraries/source/spidermonkey/lib
-  rm -f libraries/source/cxxtest-4.4/python/cxxtest/*.pyc
-  rm -f libraries/source/fcollada/lib/*
-  rm -rf libraries/source/spidermonkey/include-unix-*
-  rm -rf libraries/source/spidermonkey/mozjs-78.6.0
-  rm -f libraries/source/nvtt/lib/*.so
-  rm -f source/ps/tests/stub_impl_hack.cpp
 fi
+  #cd "$SOURCE_ROOT"
+  #build/workspaces/clean-workspaces.sh
+  ## Clean up some extra cruft not picked up by clean-workspaces.sh
+  #find binaries/system/ -type f ! -name readme.txt -delete
+  #rm -f libraries/fcollada/lib/*.a
+  #rm -f build/premake/.*.tmp
+  #rm -rf libraries/source/spidermonkey/lib
+  #rm -f libraries/source/cxxtest-4.4/python/cxxtest/*.pyc
+  #rm -f libraries/source/fcollada/lib/*
+  #rm -rf libraries/source/spidermonkey/include-unix-*
+  #rm -rf libraries/source/spidermonkey/mozjs-78.6.0
+  #rm -f libraries/source/nvtt/lib/*.so
+  #rm -f source/ps/tests/stub_impl_hack.cpp
+#fi
 
 # Spidermonkey build fails with 7, 8, 9, and 10 on Ubuntu focal?
-#export CC=gcc-7
-#export CXX=g++-7
-# Using some Debian patches might work
-# https://packages.debian.org/bookworm/0ad
-# Giving up for now... -andy5995/2024-02-09
+cd "$SOURCE_ROOT/libraries"
+/bin/bash -c 'JOBS=$(nproc) ./build-source-libs.sh \
+    -j$(nproc)'
 
 cd "$SOURCE_ROOT/build/workspaces"
 /bin/bash -c './update-workspaces.sh \
@@ -126,14 +120,18 @@ cd "$SOURCE_ROOT/build/workspaces"
 cd $WORKSPACE
 data=0ad-$VERSION-unix-data.tar.xz
 data_sum=$data.sha1sum
-if [ ! -f "$data" ]; then
-  echo "Getting data and extracting archive..."
-  for file in $data $data_sum; do
+for file in $data $data_sum; do
+  if [ ! -f "$file" ]; then
     curl -LO "$URI/$file"
-  done
-fi
+  fi
+done
 sha1sum -c $data_sum
-tar --skip-old-files -xJf $data
+
+cd "$WORKSPACE"
+if [ ! -f "$SOURCE_ROOT/binaries/data/config/default.cfg" ]; then
+  echo "Extracting data"
+  tar -xJf $data
+fi
 
 # name: prepare AppDir
 
@@ -171,31 +169,22 @@ cp -a binaries/data/tools $APPDIR/usr/data # for Atlas
 mkdir -p $APPDIR/usr/data/mods
 cp -a binaries/data/mods/mod $APPDIR/usr/data/mods
 
-# Hopefully prevent out-of-space failure when running on a GitHub hosted runner
-if [ -n "$ACTION_WORKSPACE" ]; then
-  cd "$SOURCE_ROOT/build/workspaces"
-  ./clean-workspaces.sh
-fi
+## Hopefully prevent out-of-space failure when running on a GitHub hosted runner
+#if [ -n "$ACTION_WORKSPACE" ]; then
+  #cd "$SOURCE_ROOT/build/workspaces"
+  #./clean-workspaces.sh
+#fi
 
 cd $SOURCE_ROOT
 cp -a binaries/data/mods/public $APPDIR/usr/data/mods
 
-## spirv. See https://wildfiregames.com/forum/topic/104382-vulkan-new-graphics-api/
-#mkdir $APPDIR/usr/data/mods/0ad-spirv
-#cd $APPDIR/usr/data/mods/0ad-spirv
-#curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip
-#curl -LO https://releases.wildfiregames.com/rc/0ad-spirv.zip.sha1sum
-#sha1sum -c 0ad-spirv.zip.sha1sum
-#rm 0ad-spirv.zip.sha1sum
-#unzip 0ad-spirv.zip mod.json
-
 cd "$WORKSPACE"
 
-# Hopefully prevent out-of-space failure when running on a GitHub hosted runner
-echo "Removing data from source tree (already copied to ${APPDIR})..."
-if [ -n "$ACTION_WORKSPACE" ]; then
-  rm -rf "$SOURCE_ROOT/binaries/data"
-fi
+## Hopefully prevent out-of-space failure when running on a GitHub hosted runner
+#echo "Removing data from source tree (already copied to ${APPDIR})..."
+#if [ -n "$ACTION_WORKSPACE" ]; then
+  #rm -rf "$SOURCE_ROOT/binaries/data"
+#fi
 
 # Set up output directory
 OUT_DIR="$WORKSPACE/out"
@@ -205,28 +194,28 @@ fi
 cd "$OUT_DIR"
 
 # Set LinuxDeploy output version
-LINUXDEPLOY_OUTPUT_VERSION="$VERSION"
+export LINUXDEPLOY_OUTPUT_VERSION="$VERSION"
 
 # Create the image
-if [ -z "ACTION_WORKSPACE" ]; then
+if [ -z "$ACTION_WORKSPACE" ]; then
+export DEPLOY_GTK_VERSION=3
 # Variable used by gtk plugin
-  DEPLOY_GTK_VERSION=3 linuxdeploy \
-    -d $SOURCE_DIR/build/resources/0ad.desktop \
-    --icon-file=$SOURCE_DIR/build/resources/0ad.png \
+linuxdeploy \
+    -d $SOURCE_ROOT/build/resources/0ad.desktop \
+    --icon-file=$SOURCE_ROOT/build/resources/0ad.png \
     --icon-filename=0ad \
     --executable $APPDIR/usr/bin/pyrogenesis \
     --library=/usr/lib/x86_64-linux-gnu/libthai.so.0 \
-    --custom-apprun=$ACTION_WORKSPACE/AppRun \
+    --custom-apprun=$WORKSPACE/AppRun \
     --appdir $APPDIR \
     --output appimage \
     --plugin gtk
 fi
 
-#DATE_STR=$(date +%y%m%d%H%M)
-#OUT_APPIMAGE="0ad-$VERSION-$DATE_STR-$UBUNTU_CODENAME-$ARCH.AppImage"
-#mv 0_A.D.-$VERSION-$ARCH.AppImage $OUT_APPIMAGE
-#echo "Generating sha1sum..."
-#sha1sum $OUT_APPIMAGE > "$OUT_APPIMAGE.sha1sum"
-#cat "$OUT_APPIMAGE.sha1sum"
+DATE_STR=$(date +%y%m%d%H%M)
+OUT_APPIMAGE="0ad-$VERSION-$DATE_STR-$(uname -m).AppImage"
+mv 0_A.D.-$VERSION-$(uname -m).AppImage $OUT_APPIMAGE
+sha1sum $OUT_APPIMAGE > "$OUT_APPIMAGE.sha1sum"
+cat "$OUT_APPIMAGE.sha1sum"
 
 exit 0
