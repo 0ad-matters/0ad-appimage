@@ -209,13 +209,28 @@ linuxdeploy \
     --library=/usr/lib/$ARCH-linux-gnu/libthai.so.0 \
     --custom-apprun=$WORKSPACE/AppRun \
     --appdir $APPDIR \
-    --output appimage \
     --plugin gtk
+fi
+
+# Use appimagetool from https://github.com/AppImage/appimagetool
+if [ ! -f ./appimagetool ]; then
+	echo "-----------------------------------------------------------------------------"
+	echo "◆ Downloading \"appimagetool\" from https://github.com/AppImage/appimagetool"
+	echo "-----------------------------------------------------------------------------"
+	curl -#Lo appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-"$ARCH".AppImage && chmod a+x appimagetool
 fi
 
 DATE_STR=$(date +%y%m%d%H%M)
 OUT_APPIMAGE="0ad-$VERSION-$DATE_STR-$ARCH.AppImage"
-mv 0_A.D.-$VERSION-$ARCH.AppImage $OUT_APPIMAGE
+
+REPO="0ad-appimage"
+TAG="latest"
+UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|$REPO|$TAG|*$ARCH.AppImage.zsync"
+
+ARCH=x86_64 ./appimagetool --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 20 \
+	-u "$UPINFO" \
+	"$APPDIR" "$OUT_APPIMAGE"
+
 sha1sum $OUT_APPIMAGE > "$OUT_APPIMAGE.sha1sum"
 cat "$OUT_APPIMAGE.sha1sum"
 
