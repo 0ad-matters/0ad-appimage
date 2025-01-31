@@ -214,14 +214,6 @@ linuxdeploy \
     --plugin gtk
 fi
 
-# Use appimagetool from https://github.com/AppImage/appimagetool
-if [ ! -f ./appimagetool ]; then
-	echo "-----------------------------------------------------------------------------"
-	echo "◆ Downloading \"appimagetool\" from https://github.com/AppImage/appimagetool"
-	echo "-----------------------------------------------------------------------------"
-	curl -#Lo appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-"$ARCH".AppImage && chmod a+x appimagetool
-fi
-
 DATE_STR=$(date +%y%m%d%H%M)
 OUT_APPIMAGE="0ad-$VERSION-$DATE_STR-$ARCH.AppImage"
 
