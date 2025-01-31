@@ -45,6 +45,7 @@ sudo DEBIAN_FRONTEND=noninteractive -i sh -c "apt update && apt -y upgrade && \
     cmake \
     curl \
     $CC \
+    desktop-file-utils \
     libboost-dev    \
     libboost-filesystem-dev \
     libboost-system-dev   \
@@ -68,7 +69,8 @@ sudo DEBIAN_FRONTEND=noninteractive -i sh -c "apt update && apt -y upgrade && \
     patchelf \
     python3 \
     rustc   \
-    zlib1g-dev"
+    zlib1g-dev \
+    zsync"
 
 # needed for spidermonkey build
 #export SHELL=/bin/bash
