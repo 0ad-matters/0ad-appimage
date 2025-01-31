@@ -17,4 +17,5 @@ To invoke the `ActorEditor`:
 You can build the appimage locally if you have docker installed. While in the
 repo root, to build the latest stable version:
 
-    HOSTUID=$(id -u) VERSION=0.27.0 docker compose -f ./docker-compose.yml  run --rm build
+    export HOSTUID=$(id -u) HOSTGID=$(id -g) VERSION=0.27.0
+    docker compose -f ./docker-compose.yml  run --rm build
