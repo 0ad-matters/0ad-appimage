@@ -222,8 +222,7 @@ TAG="latest"
 [ -z "$GITHUB_REPOSITORY_OWNER" ] && GITHUB_REPOSITORY_OWNER="0ad-matters"
 UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|$REPO|$TAG|*$ARCH.AppImage.zsync"
 
-appimagetool --appimage-extract-and-run \
-	--comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 20 \
+appimagetool --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 20 \
 	-u "$UPINFO" \
 	"$APPDIR" "$OUT_APPIMAGE"
 
