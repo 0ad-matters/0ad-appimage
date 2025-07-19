@@ -30,7 +30,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      VERSION: 0.27.0
+      VERSION: 0.27.1
       MINISIGN_KEY: RWTWLbO12+ig3lUExIor3xd6DdZaYFEozn8Bu8nIzY3ImuRYQszIQyyy
     steps:
     - uses: actions/checkout@v4
