@@ -55,7 +55,7 @@ jobs:
         replacesArtifacts: true
     - name: Upload Artifacts
       if: ${{ github.ref != 'refs/heads/trunk' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: AppImage-${{ matrix.os }}
         path: ./out/0ad*.AppImage*
