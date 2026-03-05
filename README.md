@@ -1,5 +1,10 @@
 # 0ad appimage
 
+As of release 28, the 0 A.D. project now produces [an official
+AppImage](https://play0ad.com/download/linux/), and this repository will be
+archived as read-only. The content below should be disregarded and considered
+outdated.
+
 Unofficial [0ad](https://play0ad.com/)
 [AppImage](https://appimage.org/) (built from official sources and
 data)
